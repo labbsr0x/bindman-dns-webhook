@@ -1,0 +1,12 @@
+version: '3.5'
+
+services:
+
+  sandman-bind9-manager:
+    image: sandman-dns-webhook/sample/hook:0.0.1
+    ports: 
+      - 7070:7070
+    environment:
+      - TAGS=teste1,teste4,teste5
+
+  
