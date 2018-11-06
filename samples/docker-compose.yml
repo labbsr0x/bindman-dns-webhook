@@ -9,4 +9,10 @@ services:
     environment:
       - TAGS=teste1,teste4,teste5
 
-  
+  sandman-swarm-listener:
+    image: sandman-dns-webhook/sample/client:0.0.1
+    ports:
+      - 7071:7071
+    enviroment:
+      - MANAGER_ADDRESS=sandman-bind9-manager_1:7070
+      - REVERSE_PROXY_ADDRESS=http://0.0.0.0
