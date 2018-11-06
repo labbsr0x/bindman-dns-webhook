@@ -18,6 +18,8 @@ Two samples are provided in the `samples` folder.
 
 - **hook**: demonstrates how one can leverage the hook library to receive requests modifying the DNS records it manages. It expects the `TAGS` environment variable to be defined.
 
+A postman collection is provided (`samples/sandman-dns-webhook-samples.postman_collection.json`) thats lays out the available apis and how to communicate with them.
+
 # Tags
 
 When a Sandman cluster runs a new service, it is expected from this service to be annotaded with labels indicating what the hostname for that service should be.
