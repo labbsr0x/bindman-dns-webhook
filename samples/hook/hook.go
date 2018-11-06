@@ -41,8 +41,11 @@ func (m *Bind9Manager) GetDNSRecords() ([]types.DNSRecord, error) {
 }
 
 // GetDNSRecord retrieves the dns record identified by name
-func (m *Bind9Manager) GetDNSRecord(name string) (types.DNSRecord, error) {
-	return m.DNSRecords[name], nil
+func (m *Bind9Manager) GetDNSRecord(name string) (*types.DNSRecord, error) {
+	if record, ok := m.DNSRecords[name]; ok {
+		return &record, nil
+	}
+	return nil, nil
 }
 
 // AddDNSRecord adds a new DNS record

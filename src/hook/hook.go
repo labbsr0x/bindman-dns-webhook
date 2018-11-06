@@ -55,6 +55,10 @@ func (m *DNSWebhook) GetDNSRecord(w http.ResponseWriter, r *http.Request) {
 	resp, err := m.DNSManager.GetDNSRecord(vars["name"])
 	types.PanicIfError(types.Error{Message: fmt.Sprintf("Not possible to get the DNS Record '%s'", vars["name"]), Code: 500, Err: err})
 
+	if resp == nil {
+		types.Panic(types.Error{Message: fmt.Sprintf("No record with name '%s'", vars["name"]), Code: 404, Err: nil})
+	}
+
 	write200Response(resp, w)
 }
 
