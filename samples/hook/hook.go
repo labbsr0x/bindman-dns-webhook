@@ -10,7 +10,7 @@ import (
 
 func main() {
 	config := GetConfig()
-	manager := Bind9Manager{DNSRecords: make(map[string]types.DNSRecord)}
+	manager := DummyManager{DNSRecords: make(map[string]types.DNSRecord)}
 	hook.Initialize(config.Tags, &manager)
 }
 
@@ -26,13 +26,13 @@ func GetConfig() *Config {
 	}
 }
 
-// Bind9Manager holds the information for managing a bing9 dns server
-type Bind9Manager struct {
+// DummyManager holds the information for managing a dummy dns server
+type DummyManager struct {
 	DNSRecords map[string]types.DNSRecord
 }
 
 // GetDNSRecords retrieves all the dns records being managed
-func (m *Bind9Manager) GetDNSRecords() ([]types.DNSRecord, error) {
+func (m *DummyManager) GetDNSRecords() ([]types.DNSRecord, error) {
 	toReturn := []types.DNSRecord{}
 	for _, v := range m.DNSRecords {
 		toReturn = append(toReturn, v)
@@ -41,7 +41,7 @@ func (m *Bind9Manager) GetDNSRecords() ([]types.DNSRecord, error) {
 }
 
 // GetDNSRecord retrieves the dns record identified by name
-func (m *Bind9Manager) GetDNSRecord(name string) (*types.DNSRecord, error) {
+func (m *DummyManager) GetDNSRecord(name string) (*types.DNSRecord, error) {
 	if record, ok := m.DNSRecords[name]; ok {
 		return &record, nil
 	}
@@ -49,13 +49,13 @@ func (m *Bind9Manager) GetDNSRecord(name string) (*types.DNSRecord, error) {
 }
 
 // AddDNSRecord adds a new DNS record
-func (m *Bind9Manager) AddDNSRecord(record types.DNSRecord) (bool, error) {
+func (m *DummyManager) AddDNSRecord(record types.DNSRecord) (bool, error) {
 	m.DNSRecords[record.Name] = record
 	return true, nil
 }
 
 // RemoveDNSRecord removes a DNS record
-func (m *Bind9Manager) RemoveDNSRecord(name string) (bool, error) {
+func (m *DummyManager) RemoveDNSRecord(name string) (bool, error) {
 	delete(m.DNSRecords, name)
 	return true, nil
 }
