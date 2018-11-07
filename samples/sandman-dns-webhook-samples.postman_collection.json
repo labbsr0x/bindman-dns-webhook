@@ -15,7 +15,16 @@
 						"header": [],
 						"body": {},
 						"url": {
-							"raw": ""
+							"raw": "http://localhost:7071/add/testeX.com",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7071",
+							"path": [
+								"add",
+								"testeX.com"
+							]
 						}
 					},
 					"response": []
@@ -27,7 +36,16 @@
 						"header": [],
 						"body": {},
 						"url": {
-							"raw": ""
+							"raw": "http://localhost:7071/add/testeX.com",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7071",
+							"path": [
+								"add",
+								"testeX.com"
+							]
 						}
 					},
 					"response": []
@@ -44,7 +62,15 @@
 						"header": [],
 						"body": {},
 						"url": {
-							"raw": ""
+							"raw": "http://localhost:7070/records",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7070",
+							"path": [
+								"records"
+							]
 						}
 					},
 					"response": []
@@ -56,7 +82,16 @@
 						"header": [],
 						"body": {},
 						"url": {
-							"raw": ""
+							"raw": "http://localhost:7070/records/testeX.com",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7070",
+							"path": [
+								"records",
+								"testeX.com"
+							]
 						}
 					},
 					"response": []
@@ -64,11 +99,28 @@
 				{
 					"name": "Add Record",
 					"request": {
-						"method": "GET",
-						"header": [],
-						"body": {},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept-Encoding",
+								"value": "application/json",
+								"disabled": false
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"testeY.com\",\n\t\"ipaddr\": \"0.0.0.0\",\n\t\"ttl\": 12345,\n\t\"tags\": [\"test2\", \"teste3\"]\n}"
+						},
 						"url": {
-							"raw": ""
+							"raw": "http://localhost:7070/records",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7070",
+							"path": [
+								"records"
+							]
 						}
 					},
 					"response": []
@@ -76,11 +128,20 @@
 				{
 					"name": "Remove Record",
 					"request": {
-						"method": "GET",
+						"method": "DELETE",
 						"header": [],
 						"body": {},
 						"url": {
-							"raw": ""
+							"raw": "http://localhost:7070/records/testeX.com",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7070",
+							"path": [
+								"records",
+								"testeX.com"
+							]
 						}
 					},
 					"response": []
