@@ -2,8 +2,11 @@ package client
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/url"
+	"os"
 	"path"
+	"strings"
 
 	"github.com/Sirupsen/logrus"
 
@@ -18,6 +21,23 @@ type DNSWebhookClient struct {
 
 	// ManagerAddress the address of the dns manager instance
 	ManagerAddress string
+}
+
+// New builds the client to communicate with the dns manager
+func New() (*DNSWebhookClient, error) {
+	rpa, err := getAddress("REVERSE_PROXY_ADDRESS")
+	if err != nil {
+		return nil, err
+	}
+	ma, err := getAddress("MANAGER_ADDRESS")
+	if err != nil {
+		return nil, err
+	}
+
+	return &DNSWebhookClient{
+		ReverseProxyAddress: rpa,
+		ManagerAddress:      ma,
+	}, nil
 }
 
 // AddRecord is a function that calls the defined webhook to add a new dns record
@@ -50,4 +70,20 @@ func getRecordAPI(managerAddress string, params string) string {
 	u, _ := url.Parse("http://" + managerAddress)
 	u.Path = path.Join(u.Path, "/records/", params)
 	return u.String()
+}
+
+// getAddress gets an env variable address identified by name
+func getAddress(name string) (addr string, err error) {
+	addr = os.Getenv(name)
+	addr = strings.Trim(addr, " ")
+
+	if addr == "" {
+		err = fmt.Errorf("The %s environment variable was not defined", name)
+	}
+
+	if strings.Contains(addr, "http") {
+		err = fmt.Errorf("The %s environment variable cannot have a schema defined", name)
+	}
+
+	return
 }

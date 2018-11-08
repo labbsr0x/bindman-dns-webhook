@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/Sirupsen/logrus"
 )
 
 // Error groups together information that defines an error. Should always be used to
@@ -25,11 +27,13 @@ func (e *Error) Error() string {
 // PanicIfError is just a wrapper to a panic call that propagates a custom Error when the err property != nil
 func PanicIfError(e Error) {
 	if e.Err != nil {
+		logrus.Errorf(e.Error())
 		panic(e)
 	}
 }
 
 // Panic wraps a panic call propagating the given error parameter
 func Panic(e Error) {
+	logrus.Errorf(e.Error())
 	panic(e)
 }
