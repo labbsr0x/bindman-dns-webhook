@@ -10,9 +10,9 @@ services:
       - TAGS=teste1,test2,teste5
 
   sandman-dns-listener:
-    image: abilioesteves/sandman-dns-webhook-client-sample:0.0.2
+    image: abilioesteves/sandman-dns-webhook-client-sample:0.0.3
     ports:
       - 7071:7071
     environment:
       - MANAGER_ADDRESS=samples_sandman-dns-manager_1:7070
-      - REVERSE_PROXY_ADDRESS=http://0.0.0.0
+      - REVERSE_PROXY_ADDRESS=0.0.0.0
