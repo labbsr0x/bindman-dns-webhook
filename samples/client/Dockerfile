@@ -2,7 +2,8 @@
 FROM golang:1.11-alpine as builder
 
 RUN apk add --no-cache git mercurial \
-    && go get github.com/labbsr0x/sandman-dns-webhook/src/hook
+    && go get github.com/gorilla/mux \
+    && go get github.com/labbsr0x/sandman-dns-webhook/src/client
 
 WORKDIR $GOPATH/src/github.com/labbsr0x/sandman-dns-webhook/samples/client
 
