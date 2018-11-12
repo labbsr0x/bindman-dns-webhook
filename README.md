@@ -28,6 +28,6 @@ When a Sandman cluster runs a new service, it is expected from this service to b
 
 More than that, a service should also be labeled with information regarding its exposure. In other words, which DNS Server should handle DNS queries to the hostname the service is expected to be attached to.
 
-Sandman accomplishes that by adopting a Tag system, where each service launched by a Sandman cluster is annotated with Tags and each DNS manager is also run with its own Tags.
+Sandman accomplishes that by adopting a Tag system, where each service launched by a Sandman cluster is annotated with a set of Tags and each DNS manager is also run with its own set of Tags.
 
-**The intersection of these two Tags indicates to the Sandman which DNS Managers will manage which service hostname attribution.**
+**The intersection of these two Tag sets indicates to the Sandman which DNS Managers will manage which service hostname attribution.**
