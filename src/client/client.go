@@ -25,11 +25,11 @@ type DNSWebhookClient struct {
 
 // New builds the client to communicate with the dns manager
 func New() (*DNSWebhookClient, error) {
-	rpa, err := getAddress("REVERSE_PROXY_ADDRESS")
+	rpa, err := getAddress("SANDMAN_REVERSE_PROXY_ADDRESS")
 	if err != nil {
 		return nil, err
 	}
-	ma, err := getAddress("MANAGER_ADDRESS")
+	ma, err := getAddress("SANDMAN_DNS_MANAGER_ADDRESS")
 	if err != nil {
 		return nil, err
 	}

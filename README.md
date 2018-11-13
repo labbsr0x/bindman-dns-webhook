@@ -14,7 +14,7 @@ The objective behind this project is to automate the management of DNS records o
 # Samples
 Two samples are provided in the `samples` folder.
 
-- **client**: demonstrates how one can leverage the client library to communicate with the DNS manager webhook APIs. It is configured via the `MANAGER_ADDRESS` and `REVERSE_PROXY_ADDRESS` environment variables which, respectively, defines the address of the manager instance and the address of the reverse proxy that will handle requests to the Sandman services.
+- **client**: demonstrates how one can leverage the client library to communicate with the DNS manager webhook APIs. It is configured via the `SANDMAN_DNS_MANAGER_ADDRESS` and `SANDMAN_REVERSE_PROXY_ADDRESS` environment variables which, respectively, defines the address of the manager instance and the address of the reverse proxy that will handle requests to the Sandman services.
 
 - **hook**: demonstrates how one can leverage the hook library to receive requests modifying the DNS records it manages. It expects the `TAGS` environment variable to be defined.
 
