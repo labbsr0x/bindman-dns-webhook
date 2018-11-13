@@ -1,20 +1,23 @@
 # BUILD
 FROM golang:1.11-alpine as builder
 
-RUN apk add --no-cache git mercurial \
-    && go get github.com/gorilla/mux \
-    && go get github.com/labbsr0x/sandman-dns-webhook/src/client
+RUN apk add --no-cache git mercurial
 
-WORKDIR $GOPATH/src/github.com/labbsr0x/sandman-dns-webhook/samples/client
+RUN mkdir -p $GOPATH/src/sandman-dns-webhook/client
+WORKDIR $GOPATH/src/sandman-dns-webhook/client
 
 ADD . ./
+
+RUN go get ./...
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags '-extldflags "-static"' -o /client .
 
 # PACK
 FROM scratch
 
-ENV REVERSE_PROXY_ADDRESS ""
-ENV MANAGER_ADDRESS ""
+ENV SANDMAN_REVERSE_PROXY_ADDRESS ""
+ENV SANDMAN_DNS_MANAGER_ADDRESS ""
+
+EXPOSE 7071
 
 COPY --from=builder /client /
 CMD ["./client"]
