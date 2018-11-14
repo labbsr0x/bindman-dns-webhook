@@ -38,7 +38,11 @@ func New() (*DNSWebhookClient, error) {
 		return nil, err
 	}
 
-	tags := strings.Split(os.Getenv("SANDMAN_DNS_TAGS"), ",")
+	tagsStr := strings.Trim(os.Getenv("SANDMAN_DNS_TAGS"), " ")
+	if tagsStr == "" {
+		return nil, fmt.Errorf("The SANDMAN_DNS_TAGS environment variable was not defined")
+	}
+	tags := strings.Split(tagsStr, ",")
 	return &DNSWebhookClient{
 		ReverseProxyAddress: rpa,
 		ManagerAddress:      ma,
