@@ -7,8 +7,6 @@ services:
     image: abilioesteves/sandman-dns-webhook-hook-sample:0.0.3
     ports: 
       - 7070:7070
-    environment:
-      - TAGS=teste1,test2,teste5
 
   sandman-dns-listener:
     image: abilioesteves/sandman-dns-webhook-client-sample:0.0.4
@@ -17,3 +15,4 @@ services:
     environment:
       - SANDMAN_DNS_MANAGER_ADDRESS=samples_sandman-dns-manager_1:7070
       - SANDMAN_REVERSE_PROXY_ADDRESS=0.0.0.0
+      - SANDMAN_DNS_TAGS=teste1,test2,teste5

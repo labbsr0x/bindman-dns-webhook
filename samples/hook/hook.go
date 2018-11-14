@@ -1,29 +1,13 @@
 package main
 
 import (
-	"os"
-	"strings"
-
 	"github.com/labbsr0x/sandman-dns-webhook/src/hook"
 	"github.com/labbsr0x/sandman-dns-webhook/src/types"
 )
 
 func main() {
-	config := GetConfig()
 	manager := DummyManager{DNSRecords: make(map[string]types.DNSRecord)}
-	hook.Initialize(config.Tags, &manager)
-}
-
-// Config holds the config information for this manager
-type Config struct {
-	Tags []string
-}
-
-// GetConfig reads the expected os environment variables
-func GetConfig() *Config {
-	return &Config{
-		Tags: strings.Split(os.Getenv("TAGS"), ","),
-	}
+	hook.Initialize(&manager)
 }
 
 // DummyManager holds the information for managing a dummy dns server

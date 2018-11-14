@@ -7,13 +7,11 @@ WORKDIR $GOPATH/src/sandman-dns-webhook/hook
 
 ADD . ./
 
-RUN go get ./...
+RUN go get -v ./...
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags '-extldflags "-static"' -o /hook .
 
 # PACK
 FROM scratch
-
-ENV TAGS "test"
 
 EXPOSE 7070
 
