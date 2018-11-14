@@ -40,6 +40,7 @@ func removeRecord(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(200)
 			json.NewEncoder(w).Encode(result)
+			return
 		}
 	}
 	http.Error(w, err.Error(), 500)

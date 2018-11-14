@@ -14,9 +14,9 @@ The objective behind this project is to automate the management of DNS records o
 # Samples
 Two samples are provided in the `samples` folder.
 
-- **client**: demonstrates how one can leverage the client library to communicate with the DNS manager webhook APIs. It is configured via the `SANDMAN_DNS_MANAGER_ADDRESS` and `SANDMAN_REVERSE_PROXY_ADDRESS` environment variables which, respectively, defines the address of the manager instance and the address of the reverse proxy that will handle requests to the Sandman services.
+- **client**: demonstrates how one can leverage the client library to communicate with the DNS manager webhook APIs. It is configured via the `SANDMAN_DNS_MANAGER_ADDRESS` and `SANDMAN_REVERSE_PROXY_ADDRESS` environment variables which, respectively, defines the address of the manager instance and the address of the reverse proxy that will handle requests to the Sandman services. It also expects the `SANDMAN_DNS_TAGS` environment variable to be defined, denoting which tags it is responsible for handling.
 
-- **hook**: demonstrates how one can leverage the hook library to receive requests modifying the DNS records it manages. It expects the `TAGS` environment variable to be defined.
+- **hook**: demonstrates how one can leverage the hook library to receive requests modifying the DNS records it manages. 
 
 A postman collection is provided (`samples/sandman-dns-webhook-samples.postman_collection.json`) thats lays out the available apis and how to communicate with them.
 
@@ -28,6 +28,6 @@ When a Sandman cluster runs a new service, it is expected from this service to b
 
 More than that, a service should also be labeled with information regarding its exposure. In other words, which DNS Server should handle DNS queries to the hostname the service is expected to be attached to.
 
-Sandman accomplishes that by adopting a Tag system, where each service launched by a Sandman cluster is annotated with a set of Tags and each DNS manager is also run with its own set of Tags.
+Sandman accomplishes that by adopting a Tag system, where each service launched by a Sandman cluster is annotated with a set of Tags and each DNS listener is also run with its own set of Tags.
 
 **The intersection of these two Tag sets indicates to the Sandman which DNS Managers will manage which service hostname attribution.**
