@@ -9,7 +9,7 @@ services:
       - 7070:7070
 
   sandman-dns-listener:
-    image: abilioesteves/sandman-dns-webhook-client-sample:0.0.5
+    image: abilioesteves/sandman-dns-webhook-client-sample:0.0.6
     ports:
       - 7071:7071
     environment:
