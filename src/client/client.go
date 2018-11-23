@@ -51,8 +51,8 @@ func New() (*DNSWebhookClient, error) {
 }
 
 // AddRecord is a function that calls the defined webhook to add a new dns record
-func (l *DNSWebhookClient) AddRecord(name string, tags []string, ttl int) (result bool, err error) {
-	record := types.DNSRecord{IPAddr: l.ReverseProxyAddress, Name: name, Tags: tags, TTL: ttl}
+func (l *DNSWebhookClient) AddRecord(name string, tags []string) (result bool, err error) {
+	record := types.DNSRecord{IPAddr: l.ReverseProxyAddress, Name: name, Tags: tags}
 	ok, errs := l.checkRecord(&record)
 	if ok {
 		record, _ := json.Marshal(record)
