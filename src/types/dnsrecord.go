@@ -14,7 +14,7 @@ type DNSRecord struct {
 	TTL int `json:"ttl"`
 
 	// Tags slice of strings that identifies this dns record
-	Tags []string
+	Tags []string `json:"tags"`
 }
 
 // Check verifies if the DNS record satisfies certain conditions
@@ -30,11 +30,6 @@ func (record *DNSRecord) Check() (bool, []string) {
 	if strings.Trim(record.IPAddr, " ") == "" {
 		noErrors = false
 		errs = append(errs, "Empty ip address")
-	}
-
-	if record.TTL < 30 {
-		noErrors = false
-		errs = append(errs, "Record TTL less than 30 seconds")
 	}
 
 	return noErrors, errs

@@ -4,12 +4,12 @@ version: '3.5'
 services:
 
   sandman-dns-manager:
-    image: abilioesteves/sandman-dns-webhook-hook-sample:0.0.4
+    image: abilioesteves/sandman-dns-webhook-hook-sample:0.0.5
     ports: 
       - 7070:7070
 
   sandman-dns-listener:
-    image: abilioesteves/sandman-dns-webhook-client-sample:0.0.6
+    image: abilioesteves/sandman-dns-webhook-client-sample:0.0.5
     ports:
       - 7071:7071
     environment:
