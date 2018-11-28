@@ -1,5 +1,6 @@
 # Sandman DNS Webhook
 [![Go Report Card](https://goreportcard.com/badge/github.com/labbsr0x/sandman-dns-webhook)](https://goreportcard.com/report/github.com/labbsr0x/sandman-dns-webhook)
+
 This repository lays out the pieces of code of a sandman DNS manager webhook.
 
 The libraries present here should be used in order to ease out integrations among listeners and managers.
