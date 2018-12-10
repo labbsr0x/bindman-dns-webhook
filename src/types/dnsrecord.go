@@ -9,9 +9,6 @@ type DNSRecord struct {
 
 	// IPAddr the ip address of the host (usually the load balancers ip)
 	IPAddr string `json:"ipaddr"`
-
-	// TTL the time to live of this dns record
-	TTL int `json:"ttl"`
 }
 
 // Check verifies if the DNS record satisfies certain conditions
