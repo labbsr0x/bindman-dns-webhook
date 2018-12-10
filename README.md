@@ -11,7 +11,7 @@ The objective behind this project is to automate the management of DNS records o
 
 - **Listeners** are pieces of software that listens to events that a specific Sandman cluster emits, filtering for events of new services being added. A Sandman cluster expects these events to be annotated with labels identifying which DNS hostname should be assigned to a service. Once these labels are identified, the modification of a DNS Record is delegated to its DNS manager.
 
-- **Managers** are pieces of software that receives requests from listeners to modify its DNS Server records. 
+- **Managers** are pieces of software that receives requests from listeners to modify its DNS Server records.
 
 # Samples
 Two samples are provided in the `samples` folder.
