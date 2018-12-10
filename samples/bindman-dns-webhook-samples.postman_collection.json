@@ -36,14 +36,14 @@
 						"header": [],
 						"body": {},
 						"url": {
-							"raw": "http://localhost:7071/add/testeX.com",
+							"raw": "http://localhost:7071/remove/testeX.com",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "7071",
 							"path": [
-								"add",
+								"remove",
 								"testeX.com"
 							]
 						}
