@@ -1,7 +1,7 @@
-# Sandman DNS Webhook
-[![Go Report Card](https://goreportcard.com/badge/github.com/labbsr0x/sandman-dns-webhook)](https://goreportcard.com/report/github.com/labbsr0x/sandman-dns-webhook)
+# Bindman-DNS Webhook
+[![Go Report Card](https://goreportcard.com/badge/github.com/labbsr0x/bindman-dns-webhook)](https://goreportcard.com/report/github.com/labbsr0x/bindman-dns-webhook)
 
-This repository lays out the pieces of code of a sandman DNS manager webhook.
+This repository lays out the pieces of code of a Bindman-DNS manager webhook.
 
 The libraries present here should be used in order to ease out integrations among listeners and managers.
 
@@ -16,11 +16,11 @@ The objective behind this project is to automate the management of DNS records o
 # Samples
 Two samples are provided in the `samples` folder.
 
-- **client**: demonstrates how one can leverage the client library to communicate with the DNS manager webhook APIs. It is configured via the `SANDMAN_DNS_MANAGER_ADDRESS` and `SANDMAN_REVERSE_PROXY_ADDRESS` environment variables which, respectively, defines the address of the manager instance and the address of the reverse proxy that will handle requests to the Sandman services. It also expects the `SANDMAN_DNS_TAGS` environment variable to be defined, denoting which tags it is responsible for handling.
+- **client**: demonstrates how one can leverage the client library to communicate with the DNS manager webhook APIs. It is configured via the `BINDMAN_DNS_MANAGER_ADDRESS` and `BINDMAN_REVERSE_PROXY_ADDRESS` environment variables which, respectively, defines the address of the manager instance and the address of the reverse proxy that will handle requests to the Sandman services. It also expects the `BINDMAN_DNS_TAGS` environment variable to be defined, denoting which tags it is responsible for handling.
 
 - **hook**: demonstrates how one can leverage the hook library to receive requests modifying the DNS records it manages. 
 
-A postman collection is provided (`samples/sandman-dns-webhook-samples.postman_collection.json`) thats lays out the available apis and how to communicate with them.
+A postman collection is provided (`samples/bindman-dns-webhook-samples.postman_collection.json`) thats lays out the available apis and how to communicate with them.
 
 To build and run the samples just type `docker-compose up` from the samples folder.
 

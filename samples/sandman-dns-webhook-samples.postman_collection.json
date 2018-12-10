@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "8c50d15c-c5e4-4643-adf2-e65123cc2262",
-		"name": "sandman-dns-webhook-samples",
+		"name": "bindman-dns-webhook-samples",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [

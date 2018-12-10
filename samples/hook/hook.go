@@ -5,15 +5,15 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/labbsr0x/sandman-dns-webhook/src/hook"
-	"github.com/labbsr0x/sandman-dns-webhook/src/types"
+	"github.com/labbsr0x/bindman-dns-webhook/src/hook"
+	"github.com/labbsr0x/bindman-dns-webhook/src/types"
 )
 
 func main() {
 	manager := DummyManager{DNSRecords: make(map[string]types.DNSRecord), TTL: 3600}
 
 	// get ttl from env
-	if ttl, err := strconv.Atoi(strings.Trim(os.Getenv("SANDMAN_DNS_TTL"), " ")); err == nil {
+	if ttl, err := strconv.Atoi(strings.Trim(os.Getenv("BINDMAN_DNS_TTL"), " ")); err == nil {
 		manager.TTL = ttl
 	}
 	hook.Initialize(&manager)

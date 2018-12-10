@@ -3,8 +3,8 @@ FROM golang:1.11-alpine as builder
 
 RUN apk add --no-cache git mercurial
 
-RUN mkdir -p $GOPATH/src/sandman-dns-webhook/client
-WORKDIR $GOPATH/src/sandman-dns-webhook/client
+RUN mkdir -p $GOPATH/src/bindman-dns-webhook/client
+WORKDIR $GOPATH/src/bindman-dns-webhook/client
 
 ADD . ./
 
@@ -14,9 +14,9 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags '-extldflag
 # PACK
 FROM scratch
 
-ENV SANDMAN_REVERSE_PROXY_ADDRESS ""
-ENV SANDMAN_DNS_MANAGER_ADDRESS ""
-ENV SANDMAN_DNS_TAGS ""
+ENV BINDMAN_REVERSE_PROXY_ADDRESS ""
+ENV BINDMAN_DNS_MANAGER_ADDRESS ""
+ENV BINDMAN_DNS_TAGS ""
 
 EXPOSE 7071
 

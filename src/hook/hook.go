@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/Sirupsen/logrus"
-	"github.com/labbsr0x/sandman-dns-webhook/src/types"
+	"github.com/labbsr0x/bindman-dns-webhook/src/types"
 
 	"github.com/gorilla/mux"
 )
