@@ -12,9 +12,6 @@ type DNSRecord struct {
 
 	// TTL the time to live of this dns record
 	TTL int `json:"ttl"`
-
-	// Tags slice of strings that identifies this dns record
-	Tags []string `json:"tags"`
 }
 
 // Check verifies if the DNS record satisfies certain conditions

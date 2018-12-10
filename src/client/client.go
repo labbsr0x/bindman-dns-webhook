@@ -21,9 +21,6 @@ type DNSWebhookClient struct {
 
 	// ManagerAddress the address of the dns manager instance
 	ManagerAddress string
-
-	// Tags a slice of strings denoting which dns records this dns agent can handle
-	Tags []string
 }
 
 // New builds the client to communicate with the dns manager
@@ -38,21 +35,15 @@ func New() (*DNSWebhookClient, error) {
 		return nil, err
 	}
 
-	tagsStr := strings.Trim(os.Getenv("BINDMAN_DNS_TAGS"), " ")
-	if tagsStr == "" {
-		return nil, fmt.Errorf("The BINDMAN_DNS_TAGS environment variable was not defined")
-	}
-	tags := strings.Split(tagsStr, ",")
 	return &DNSWebhookClient{
 		ReverseProxyAddress: rpa,
 		ManagerAddress:      ma,
-		Tags:                tags,
 	}, nil
 }
 
 // AddRecord is a function that calls the defined webhook to add a new dns record
-func (l *DNSWebhookClient) AddRecord(name string, tags []string) (result bool, err error) {
-	record := types.DNSRecord{IPAddr: l.ReverseProxyAddress, Name: name, Tags: tags}
+func (l *DNSWebhookClient) AddRecord(name string) (result bool, err error) {
+	record := types.DNSRecord{IPAddr: l.ReverseProxyAddress, Name: name}
 	ok, errs := l.checkRecord(&record)
 	if ok {
 		record, _ := json.Marshal(record)
@@ -108,20 +99,6 @@ func getAddress(name string) (addr string, err error) {
 func (l *DNSWebhookClient) checkRecord(record *types.DNSRecord) (bool, []string) {
 	noErrors := false
 	var errs []string
-
-	// dumb implementation but linear O(n + m)
-	rm := make(map[string]bool)
-	for ri := 0; ri < len(l.Tags); ri++ {
-		rm[l.Tags[ri]] = true
-	}
-
-	errs = append(errs, "No matching tags found")
-	for ri := 0; ri < len(record.Tags); ri++ {
-		if rm[record.Tags[ri]] {
-			noErrors = true
-			errs = nil
-		}
-	}
 
 	ok, rErrors := record.Check()
 	noErrors = noErrors && ok
