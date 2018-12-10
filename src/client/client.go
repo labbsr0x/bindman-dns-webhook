@@ -10,7 +10,7 @@ import (
 
 	"github.com/Sirupsen/logrus"
 
-	"github.com/labbsr0x/sandman-dns-webhook/src/types"
+	"github.com/labbsr0x/bindman-dns-webhook/src/types"
 )
 
 // DNSWebhookClient defines the basic structure of a DNS Listener
@@ -28,19 +28,19 @@ type DNSWebhookClient struct {
 
 // New builds the client to communicate with the dns manager
 func New() (*DNSWebhookClient, error) {
-	rpa, err := getAddress("SANDMAN_REVERSE_PROXY_ADDRESS")
+	rpa, err := getAddress("BINDMAN_REVERSE_PROXY_ADDRESS")
 	if err != nil {
 		return nil, err
 	}
 
-	ma, err := getAddress("SANDMAN_DNS_MANAGER_ADDRESS")
+	ma, err := getAddress("BINDMAN_DNS_MANAGER_ADDRESS")
 	if err != nil {
 		return nil, err
 	}
 
-	tagsStr := strings.Trim(os.Getenv("SANDMAN_DNS_TAGS"), " ")
+	tagsStr := strings.Trim(os.Getenv("BINDMAN_DNS_TAGS"), " ")
 	if tagsStr == "" {
-		return nil, fmt.Errorf("The SANDMAN_DNS_TAGS environment variable was not defined")
+		return nil, fmt.Errorf("The BINDMAN_DNS_TAGS environment variable was not defined")
 	}
 	tags := strings.Split(tagsStr, ",")
 	return &DNSWebhookClient{

@@ -3,7 +3,7 @@ FROM golang:1.11-alpine as builder
 
 RUN apk add --no-cache git mercurial
 
-WORKDIR $GOPATH/src/sandman-dns-webhook/hook
+WORKDIR $GOPATH/src/bindman-dns-webhook/hook
 
 ADD . ./
 

@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	hookClient "github.com/labbsr0x/sandman-dns-webhook/src/client"
+	hookClient "github.com/labbsr0x/bindman-dns-webhook/src/client"
 )
 
 func main() {
