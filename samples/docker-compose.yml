@@ -8,7 +8,7 @@ services:
     ports: 
       - 7070:7070
     environment:
-      - bindman_DNS_TTL=1200
+      - BINDMAN_DNS_TTL=1200
 
   bindman-dns-listener:
     image: abilioesteves/bindman-dns-webhook-client-sample:0.0.1
