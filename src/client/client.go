@@ -16,34 +16,25 @@ import (
 // DNSWebhookClient defines the basic structure of a DNS Listener
 type DNSWebhookClient struct {
 
-	// ReverseProxyAddress the ip address of the reverse proxy that will handle the DNS redirections
-	ReverseProxyAddress string
-
 	// ManagerAddress the address of the dns manager instance
 	ManagerAddress string
 }
 
 // New builds the client to communicate with the dns manager
 func New() (*DNSWebhookClient, error) {
-	rpa, err := getAddress("BINDMAN_REVERSE_PROXY_ADDRESS")
-	if err != nil {
-		return nil, err
-	}
-
 	ma, err := getAddress("BINDMAN_DNS_MANAGER_ADDRESS")
 	if err != nil {
 		return nil, err
 	}
 
 	return &DNSWebhookClient{
-		ReverseProxyAddress: rpa,
-		ManagerAddress:      ma,
+		ManagerAddress: ma,
 	}, nil
 }
 
-// AddRecord is a function that calls the defined webhook to add a new dns record
-func (l *DNSWebhookClient) AddRecord(name string) (result bool, err error) {
-	record := types.DNSRecord{IPAddr: l.ReverseProxyAddress, Name: name}
+// AddRecord adds a DNS record
+func (l *DNSWebhookClient) addRecord(name string, recordType string, value string) (result bool, err error) {
+	record := types.DNSRecord{Value: value, Name: name, Type: recordType}
 	ok, errs := l.checkRecord(&record)
 	if ok {
 		record, _ := json.Marshal(record)
