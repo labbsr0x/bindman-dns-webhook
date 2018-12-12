@@ -14,7 +14,6 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags '-extldflag
 # PACK
 FROM scratch
 
-ENV BINDMAN_REVERSE_PROXY_ADDRESS ""
 ENV BINDMAN_DNS_MANAGER_ADDRESS ""
 
 EXPOSE 7071
