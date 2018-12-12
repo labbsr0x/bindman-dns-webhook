@@ -34,8 +34,8 @@ func New() (*DNSWebhookClient, error) {
 
 // AddRecord adds a DNS record
 func (l *DNSWebhookClient) AddRecord(name string, recordType string, value string) (result bool, err error) {
-	record := types.DNSRecord{Value: value, Name: name, Type: recordType}
-	ok, errs := l.checkRecord(&record)
+	record := &types.DNSRecord{Value: value, Name: name, Type: recordType}
+	ok, errs := record.Check()
 	if ok {
 		record, _ := json.Marshal(record)
 		_, resp, err := PostHTTP(getRecordAPI(l.ManagerAddress, ""), record)
@@ -84,16 +84,4 @@ func getAddress(name string) (addr string, err error) {
 	}
 
 	return
-}
-
-// checkRecord verifies if the tags attached to a record allows it to be handled by the registered DNSManager provider
-func (l *DNSWebhookClient) checkRecord(record *types.DNSRecord) (bool, []string) {
-	noErrors := false
-	var errs []string
-
-	ok, rErrors := record.Check()
-	noErrors = noErrors && ok
-	errs = append(errs, rErrors...)
-
-	return noErrors, errs
 }
