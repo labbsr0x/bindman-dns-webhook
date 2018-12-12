@@ -33,7 +33,7 @@ func New() (*DNSWebhookClient, error) {
 }
 
 // AddRecord adds a DNS record
-func (l *DNSWebhookClient) addRecord(name string, recordType string, value string) (result bool, err error) {
+func (l *DNSWebhookClient) AddRecord(name string, recordType string, value string) (result bool, err error) {
 	record := types.DNSRecord{Value: value, Name: name, Type: recordType}
 	ok, errs := l.checkRecord(&record)
 	if ok {
