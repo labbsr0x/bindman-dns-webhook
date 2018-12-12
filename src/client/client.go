@@ -8,7 +8,7 @@ import (
 	"path"
 	"strings"
 
-	"github.com/Sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 
 	"github.com/labbsr0x/bindman-dns-webhook/src/types"
 )
