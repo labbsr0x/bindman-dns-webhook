@@ -18,7 +18,7 @@ type Error struct {
 // Error() gives a string representing the error; also, forces the Error type to comply with the error interface
 func (e *Error) Error() string {
 	mode := strings.Trim(os.Getenv("BINDMAN_MODE"), " ")
-	if mode == "DEBUG" || mode == "" {
+	if mode == "DEBUG" {
 		return fmt.Sprintf("ERROR (%v): %s; \n Inner error: %s", e.Code, e.Message, e.Err)
 	}
 	return fmt.Sprintf("ERROR (%v): %s", e.Code, e.Message)
