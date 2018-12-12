@@ -4,16 +4,15 @@ version: '3.5'
 services:
 
   bindman-dns-manager:
-    image: abilioesteves/bindman-dns-webhook-hook-sample:0.0.2
+    image: abilioesteves/bindman-dns-webhook-hook-sample:0.0.3
     ports: 
       - 7070:7070
     environment:
       - BINDMAN_DNS_TTL=1200
 
   bindman-dns-listener:
-    image: abilioesteves/bindman-dns-webhook-client-sample:0.0.2
+    image: abilioesteves/bindman-dns-webhook-client-sample:0.0.3
     ports:
       - 7071:7071
     environment:
       - BINDMAN_DNS_MANAGER_ADDRESS=bindman-dns-manager:7070
-      - BINDMAN_REVERSE_PROXY_ADDRESS=0.0.0.0

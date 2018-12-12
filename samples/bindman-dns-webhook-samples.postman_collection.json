@@ -109,7 +109,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"name\": \"testeY.com\",\n\t\"ipaddr\": \"0.0.0.0\",\n\t\"ttl\": 12345,\n\t\"tags\": [\"test2\", \"teste3\"]\n}"
+							"raw": "{\n\t\"name\": \"testeX.com\",\n\t\"value\": \"0.0.0.0\",\n\t\"type\": \"A\"\n}"
 						},
 						"url": {
 							"raw": "http://localhost:7070/records",

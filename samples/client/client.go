@@ -20,7 +20,7 @@ func addRecord(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	client, err := hookClient.New()
 	if err == nil {
-		result, err := client.AddRecord(vars["name"])
+		result, err := client.AddRecord(vars["name"], "A", "0.0.0.0")
 		if err == nil {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(200)

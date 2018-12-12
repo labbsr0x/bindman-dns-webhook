@@ -13,6 +13,8 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags '-extldflag
 # PACK
 FROM scratch
 
+ENV BINDMAN_DNS_TTL ""
+
 EXPOSE 7070
 
 COPY --from=builder /hook /
