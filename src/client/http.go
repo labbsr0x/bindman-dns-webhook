@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 // PostHTTP wraps the call to http.NewRequest apis and properly submits a new HTTP POST request
