@@ -1,6 +1,10 @@
 package types
 
-import "strings"
+import (
+	"strings"
+
+	"github.com/Sirupsen/logrus"
+)
 
 // DNSRecord defines what we understand as a DNSRecord
 type DNSRecord struct {
@@ -16,6 +20,7 @@ type DNSRecord struct {
 
 // Check verifies if the DNS record satisfies certain conditions
 func (record *DNSRecord) Check() (bool, []string) {
+	logrus.Infof("Record to check: '%v'", record)
 	noErrors := true
 	var errs []string
 
