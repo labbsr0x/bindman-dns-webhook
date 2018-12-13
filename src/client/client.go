@@ -18,17 +18,24 @@ type DNSWebhookClient struct {
 
 	// ManagerAddress the address of the dns manager instance
 	ManagerAddress string
+
+	http HTTPHelper
 }
 
 // New builds the client to communicate with the dns manager
-func New() (*DNSWebhookClient, error) {
+func New(httpHelper HTTPHelper) (*DNSWebhookClient, error) {
 	ma, err := getAddress("BINDMAN_DNS_MANAGER_ADDRESS")
 	if err != nil {
 		return nil, err
 	}
 
+	if httpHelper == nil {
+		return nil, fmt.Errorf("Not possible to start a listener without an HTTPHelper instance")
+	}
+
 	return &DNSWebhookClient{
 		ManagerAddress: ma,
+		http:           httpHelper,
 	}, nil
 }
 
@@ -38,7 +45,7 @@ func (l *DNSWebhookClient) AddRecord(name string, recordType string, value strin
 	ok, errs := record.Check()
 	if ok {
 		record, _ := json.Marshal(record)
-		_, resp, err := PostHTTP(getRecordAPI(l.ManagerAddress, ""), record)
+		_, resp, err := l.http.Post(getRecordAPI(l.ManagerAddress, ""), record)
 		if err != nil {
 			logrus.Errorf("ERR: %s", err)
 			return false, err
@@ -52,7 +59,7 @@ func (l *DNSWebhookClient) AddRecord(name string, recordType string, value strin
 
 // RemoveRecord is a function that calls the defined webhook to remove a specific dns record
 func (l *DNSWebhookClient) RemoveRecord(name string) (result bool, err error) {
-	_, resp, err := DeleteHTTP(getRecordAPI(l.ManagerAddress, name))
+	_, resp, err := l.http.Delete(getRecordAPI(l.ManagerAddress, name))
 
 	if err != nil {
 		logrus.Errorf("ERR: %s", err)
