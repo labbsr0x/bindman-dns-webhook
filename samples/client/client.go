@@ -21,11 +21,14 @@ func addRecord(w http.ResponseWriter, r *http.Request) {
 	client, err := hookClient.New(new(hookClient.BindmanHTTPHelper))
 	if err == nil {
 		result, err := client.AddRecord(vars["name"], "A", "0.0.0.0")
-		if err == nil {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(200)
-			json.NewEncoder(w).Encode(result)
-			return
+		if err == nil && result {
+			records, err := client.GetRecords()
+			if err == nil {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(200)
+				json.NewEncoder(w).Encode(records)
+				return
+			}
 		}
 	}
 	http.Error(w, err.Error(), 500)
@@ -36,11 +39,14 @@ func removeRecord(w http.ResponseWriter, r *http.Request) {
 	client, err := hookClient.New(new(hookClient.BindmanHTTPHelper))
 	if err == nil {
 		result, err := client.RemoveRecord(vars["name"])
-		if err == nil {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(200)
-			json.NewEncoder(w).Encode(result)
-			return
+		if err == nil && result {
+			records, err := client.GetRecords()
+			if err == nil {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(200)
+				json.NewEncoder(w).Encode(records)
+				return
+			}
 		}
 	}
 	http.Error(w, err.Error(), 500)
