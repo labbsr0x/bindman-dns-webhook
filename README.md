@@ -1,4 +1,5 @@
 # Bindman-DNS Webhook
+![Build Status](https://travis-ci.com/labbsr0x/bindman-dns-webhook.svg?branch=master)
 [![Go Report Card](https://goreportcard.com/badge/github.com/labbsr0x/bindman-dns-webhook)](https://goreportcard.com/report/github.com/labbsr0x/bindman-dns-webhook)
 
 This repository lays out the pieces of code of a Bindman-DNS webhook.

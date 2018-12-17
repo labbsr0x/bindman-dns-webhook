@@ -18,7 +18,7 @@ func main() {
 
 func addRecord(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	client, err := hookClient.New()
+	client, err := hookClient.New(new(hookClient.BindmanHTTPHelper))
 	if err == nil {
 		result, err := client.AddRecord(vars["name"], "A", "0.0.0.0")
 		if err == nil {
@@ -33,7 +33,7 @@ func addRecord(w http.ResponseWriter, r *http.Request) {
 
 func removeRecord(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	client, err := hookClient.New()
+	client, err := hookClient.New(new(hookClient.BindmanHTTPHelper))
 	if err == nil {
 		result, err := client.RemoveRecord(vars["name"])
 		if err == nil {

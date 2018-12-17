@@ -1,0 +1,9 @@
+language: go
+
+go:
+    - 1.11.x
+
+script: 
+    - go test -v ./src/client
+    - go test -v ./src/hook
+    - go test -v ./src/types
