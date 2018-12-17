@@ -6,4 +6,4 @@ go:
 script: 
     - go test -v ./src/client
     - go test -v ./src/hook
-    - go test -v ./types
+    - go test -v ./src/types
