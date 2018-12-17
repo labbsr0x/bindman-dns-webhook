@@ -9,8 +9,18 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// PostHTTP wraps the call to http.NewRequest apis and properly submits a new HTTP POST request
-func PostHTTP(url string, data []byte) (http.Response, []byte, error) {
+// HTTPHelper defines an interface for helper methods that encapsulates http requests complexities
+type HTTPHelper interface {
+	Post(url string, data []byte) (http.Response, []byte, error)
+	Get(url string) (http.Response, []byte, error)
+	Delete(url string) (http.Response, []byte, error)
+}
+
+// BindmanHTTPHelper defines a struct that handles with HTTP requests for a bindman webhook client
+type BindmanHTTPHelper struct{}
+
+// Post wraps the call to http.NewRequest apis and properly submits a new HTTP POST request
+func (bhh *BindmanHTTPHelper) Post(url string, data []byte) (http.Response, []byte, error) {
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
 	if err != nil {
 		logrus.Errorf("HTTP request creation failed. err=%v", err)
@@ -34,8 +44,8 @@ func PostHTTP(url string, data []byte) (http.Response, []byte, error) {
 	return *response, datar, nil
 }
 
-// GetHTTP wraps the call to http.NewRequest apis and properly submits a new HTTP GET request
-func GetHTTP(url string) (http.Response, []byte, error) {
+// Get wraps the call to http.NewRequest apis and properly submits a new HTTP GET request
+func (bhh *BindmanHTTPHelper) Get(url string) (http.Response, []byte, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		logrus.Errorf("HTTP request creation failed. err=%s", err)
@@ -58,8 +68,8 @@ func GetHTTP(url string) (http.Response, []byte, error) {
 	return *response, datar, nil
 }
 
-// DeleteHTTP wraps the call to http.NewRequest apis and properly submits a new HTTP DELETE request
-func DeleteHTTP(url string) (http.Response, []byte, error) {
+// Delete wraps the call to http.NewRequest apis and properly submits a new HTTP DELETE request
+func (bhh *BindmanHTTPHelper) Delete(url string) (http.Response, []byte, error) {
 	req, err := http.NewRequest("DELETE", url, nil)
 	if err != nil {
 		logrus.Errorf("HTTP request creation failed. err=%v", err)
