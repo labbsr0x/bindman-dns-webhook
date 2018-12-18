@@ -8,8 +8,6 @@ import (
 	"path"
 	"strings"
 
-	"github.com/sirupsen/logrus"
-
 	"github.com/labbsr0x/bindman-dns-webhook/src/types"
 )
 
@@ -39,35 +37,51 @@ func New(httpHelper HTTPHelper) (*DNSWebhookClient, error) {
 	}, nil
 }
 
+// GetRecords communicates with the dns manager and gets the DNS Records
+func (l *DNSWebhookClient) GetRecords() (result []types.DNSRecord, err error) {
+	_, resp, err := l.http.Get(getRecordAPI(l.ManagerAddress, ""))
+	if err == nil {
+		err = json.Unmarshal(resp, &result)
+	}
+	return
+}
+
+// GetRecord communicates with the dns manager and gets a DNS Record
+func (l *DNSWebhookClient) GetRecord(name string) (result types.DNSRecord, err error) {
+	_, resp, err := l.http.Get(getRecordAPI(l.ManagerAddress, name))
+	if err == nil {
+		err = json.Unmarshal(resp, &result)
+	}
+	return
+}
+
 // AddRecord adds a DNS record
 func (l *DNSWebhookClient) AddRecord(name string, recordType string, value string) (result bool, err error) {
+	var resp []byte
 	record := &types.DNSRecord{Value: value, Name: name, Type: recordType}
 	ok, errs := record.Check()
 	if ok {
-		record, _ := json.Marshal(record)
-		_, resp, err := l.http.Post(getRecordAPI(l.ManagerAddress, ""), record)
-		if err != nil {
-			logrus.Errorf("ERR: %s", err)
-			return false, err
+		mr, _ := json.Marshal(record)
+		_, resp, err = l.http.Post(getRecordAPI(l.ManagerAddress, ""), mr)
+		if err == nil {
+			err = json.Unmarshal(resp, &result)
 		}
-
-		err = json.Unmarshal(resp, &result)
-		return result, err
+		return
 	}
-	return false, fmt.Errorf("Invalid DNS Record: %v", strings.Join(errs, ", "))
+	err = fmt.Errorf("Invalid DNS Record: %v", strings.Join(errs, ", "))
+	return
 }
 
 // RemoveRecord is a function that calls the defined webhook to remove a specific dns record
 func (l *DNSWebhookClient) RemoveRecord(name string) (result bool, err error) {
-	_, resp, err := l.http.Delete(getRecordAPI(l.ManagerAddress, name))
+	var resp []byte
+	_, resp, err = l.http.Delete(getRecordAPI(l.ManagerAddress, name))
 
-	if err != nil {
-		logrus.Errorf("ERR: %s", err)
-		return false, err
+	if err == nil {
+		err = json.Unmarshal(resp, &result)
 	}
 
-	json.Unmarshal(resp, &result)
-	return result, err
+	return
 }
 
 // getRecordAPI builds the url for consuming the api
