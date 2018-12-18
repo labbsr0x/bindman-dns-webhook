@@ -24,8 +24,9 @@ func Initialize(manager types.DNSManager) {
 	router := mux.NewRouter()
 	router.HandleFunc("/records", hook.GetDNSRecords).Methods("GET")
 	router.HandleFunc("/records/{name}", hook.GetDNSRecord).Methods("GET")
-	router.HandleFunc("/records", hook.AddDNSRecord).Methods("POST")
 	router.HandleFunc("/records/{name}", hook.RemoveDNSRecord).Methods("DELETE")
+	router.HandleFunc("/records", hook.AddDNSRecord).Methods("POST")
+	router.HandleFunc("/records", hook.UpdateDNSRecord).Methods("PUT")
 
 	logrus.Info("Initialized DNS Manager Webhook")
 	err := http.ListenAndServe("0.0.0.0:7070", router)
@@ -62,23 +63,6 @@ func (m *DNSWebhook) GetDNSRecord(w http.ResponseWriter, r *http.Request) {
 	write200Response(resp, w)
 }
 
-// AddDNSRecord handles a POST request
-// Expects a DNSRecord object as a body payload
-func (m *DNSWebhook) AddDNSRecord(w http.ResponseWriter, r *http.Request) {
-	defer handleError(w)
-	logrus.Infof("AddDNSRecord call. Http Request: %v", r)
-
-	decoder := json.NewDecoder(r.Body)
-	var record types.DNSRecord
-	err := decoder.Decode(&record)
-	types.PanicIfError(types.Error{Message: fmt.Sprintf("Not possible to parse the AddDNSRecord body payload (%s)", r.Body), Code: 400, Err: err})
-
-	resp, err := m.DNSManager.AddDNSRecord(record) // call to BL provider
-	types.PanicIfError(types.Error{Message: "Not possible to add a new DNS record", Code: 500, Err: err})
-
-	write200Response(resp, w)
-}
-
 // RemoveDNSRecord removes a dns record identified by its name
 func (m *DNSWebhook) RemoveDNSRecord(w http.ResponseWriter, r *http.Request) {
 	defer handleError(w)
@@ -87,6 +71,34 @@ func (m *DNSWebhook) RemoveDNSRecord(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := m.DNSManager.RemoveDNSRecord(vars["name"])
 	types.PanicIfError(types.Error{Message: fmt.Sprintf("Not possible to remove the DNS record '%s'", vars["name"]), Code: 500, Err: err})
+
+	write200Response(resp, w)
+}
+
+// AddDNSRecord handles a POST request
+// Expects a DNSRecord object as a body payload
+func (m *DNSWebhook) AddDNSRecord(w http.ResponseWriter, r *http.Request) {
+	m.addOrUpdateDNSRecord(w, r, m.DNSManager.AddDNSRecord)
+}
+
+// UpdateDNSRecord updates a dns record
+// Expects a DNSRecord object as a body payload
+func (m *DNSWebhook) UpdateDNSRecord(w http.ResponseWriter, r *http.Request) {
+	m.addOrUpdateDNSRecord(w, r, m.DNSManager.UpdateDNSRecord)
+}
+
+// actOrUpdateDNSRecord
+func (m *DNSWebhook) addOrUpdateDNSRecord(w http.ResponseWriter, r *http.Request, action func(record types.DNSRecord) (bool, error)) {
+	defer handleError(w)
+	logrus.Infof("UpdateDNSRecord call. Http Request: %v", r)
+
+	decoder := json.NewDecoder(r.Body)
+	var record types.DNSRecord
+	err := decoder.Decode(&record)
+	types.PanicIfError(types.Error{Message: fmt.Sprintf("Not possible to parse the AddDNSRecord body payload (%s)", r.Body), Code: 400, Err: err})
+
+	resp, err := action(record) // call to BL provider
+	types.PanicIfError(types.Error{Message: "Not possible to add a new DNS record", Code: 500, Err: err})
 
 	write200Response(resp, w)
 }

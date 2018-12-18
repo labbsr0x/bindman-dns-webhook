@@ -72,6 +72,11 @@ func (l *DNSWebhookClient) AddRecord(name string, recordType string, value strin
 	return
 }
 
+// UpdateRecord is a function that calls the defined webhook to update a specific dns record
+func (l *DNSWebhookClient) UpdateRecord(record *types.DNSRecord) (result bool, err error) {
+	return
+}
+
 // RemoveRecord is a function that calls the defined webhook to remove a specific dns record
 func (l *DNSWebhookClient) RemoveRecord(name string) (result bool, err error) {
 	var resp []byte
