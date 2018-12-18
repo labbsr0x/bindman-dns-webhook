@@ -41,7 +41,7 @@ func TestNew(t *testing.T) {
 
 func TestGetRecords(t *testing.T) {
 	c, mockHelper := initClient()
-	expected := []types.DNSRecord{types.DNSRecord{}, types.DNSRecord{}}
+	expected := []types.DNSRecord{{}, {}}
 	mockHelper.GetData, _ = json.Marshal(expected)
 
 	records, err := c.GetRecords()
@@ -124,18 +124,23 @@ func TestGetAddress(t *testing.T) {
 }
 
 type MockHTTPHelper struct {
+	PutData    []byte
 	PostData   []byte
 	GetData    []byte
 	DeleteData []byte
 }
 
-func (m *MockHTTPHelper) Post(url string, data []byte) (http.Response, []byte, error) {
-	return http.Response{}, m.PostData, nil
+func (m *MockHTTPHelper) Put(url string, data []byte) (*http.Response, []byte, error) {
+	return &http.Response{}, m.PostData, nil
 }
 
-func (m *MockHTTPHelper) Get(url string) (http.Response, []byte, error) {
-	return http.Response{}, m.GetData, nil
+func (m *MockHTTPHelper) Post(url string, data []byte) (*http.Response, []byte, error) {
+	return &http.Response{}, m.PostData, nil
 }
-func (m *MockHTTPHelper) Delete(url string) (http.Response, []byte, error) {
-	return http.Response{}, m.DeleteData, nil
+
+func (m *MockHTTPHelper) Get(url string) (*http.Response, []byte, error) {
+	return &http.Response{}, m.GetData, nil
+}
+func (m *MockHTTPHelper) Delete(url string) (*http.Response, []byte, error) {
+	return &http.Response{}, m.DeleteData, nil
 }
