@@ -53,6 +53,11 @@ func (bhh *BindmanHTTPHelper) request(url, method, contentType string, payload [
 
 		httpResponse, err = client.Do(req)
 		if err == nil {
+			defer func() {
+				if closeError := httpResponse.Body.Close(); closeError != nil {
+					logrus.Errorf("HTTP  %v response body close invocation failed. err=%v", method, err)
+				}
+			}()
 			logrus.Debugf("Response: %v", httpResponse)
 			data, _ = ioutil.ReadAll(httpResponse.Body)
 			logrus.Debugf("Response body: %v", data)
