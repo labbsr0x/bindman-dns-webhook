@@ -11,6 +11,9 @@ type DNSRecord struct {
 	// Name the DNS host name
 	Name string `json:"name"`
 
+	// ClusterID the identifier of the cluster that owns this DNSRecord
+	ClusterID string `json:"clusterid"`
+
 	// Value the value of this record
 	Value string `json:"value"`
 
@@ -27,6 +30,11 @@ func (record *DNSRecord) Check() (bool, []string) {
 	if strings.Trim(record.Name, " ") == "" {
 		noErrors = false
 		errs = append(errs, "Empty record name")
+	}
+
+	if strings.Trim(record.ClusterID, " ") == "" {
+		noErrors = false
+		errs = append(errs, "")
 	}
 
 	if strings.Trim(record.Value, " ") == "" {

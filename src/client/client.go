@@ -18,11 +18,12 @@ type DNSWebhookClient struct {
 	// ManagerAddress the address of the dns manager instance
 	ManagerAddress string
 
+	// http the http helper
 	http HTTPHelper
 }
 
 // New builds the client to communicate with the dns manager
-func New(httpHelper HTTPHelper) (*DNSWebhookClient, error) {
+func New(clusterID string, httpHelper HTTPHelper) (*DNSWebhookClient, error) {
 	ma, err := getAddress("BINDMAN_DNS_MANAGER_ADDRESS")
 	if err != nil {
 		return nil, err
@@ -39,7 +40,7 @@ func New(httpHelper HTTPHelper) (*DNSWebhookClient, error) {
 }
 
 // GetRecords communicates with the dns manager and gets the DNS Records
-func (l *DNSWebhookClient) GetRecords() (result []types.DNSRecord, err error) {
+func (l *DNSWebhookClient) GetRecords(clusterID string) (result []types.DNSRecord, err error) {
 	_, resp, err := l.http.Get(getRecordAPI(l.ManagerAddress, ""))
 	if err == nil {
 		err = json.Unmarshal(resp, &result)
@@ -48,7 +49,7 @@ func (l *DNSWebhookClient) GetRecords() (result []types.DNSRecord, err error) {
 }
 
 // GetRecord communicates with the dns manager and gets a DNS Record
-func (l *DNSWebhookClient) GetRecord(name string) (result types.DNSRecord, err error) {
+func (l *DNSWebhookClient) GetRecord(clusterID, name string) (result types.DNSRecord, err error) {
 	_, resp, err := l.http.Get(getRecordAPI(l.ManagerAddress, name))
 	if err == nil {
 		err = json.Unmarshal(resp, &result)
@@ -57,8 +58,8 @@ func (l *DNSWebhookClient) GetRecord(name string) (result types.DNSRecord, err e
 }
 
 // AddRecord adds a DNS record
-func (l *DNSWebhookClient) AddRecord(name string, recordType string, value string) (result bool, err error) {
-	return l.addOrUpdateRecord(&types.DNSRecord{Value: value, Name: name, Type: recordType}, l.http.Post)
+func (l *DNSWebhookClient) AddRecord(clusterID, name, recordType, value string) (result bool, err error) {
+	return l.addOrUpdateRecord(&types.DNSRecord{Value: value, Name: name, Type: recordType, ClusterID: clusterID}, l.http.Post)
 }
 
 // UpdateRecord is a function that calls the defined webhook to update a specific dns record
@@ -83,7 +84,7 @@ func (l *DNSWebhookClient) addOrUpdateRecord(record *types.DNSRecord, action fun
 }
 
 // RemoveRecord is a function that calls the defined webhook to remove a specific dns record
-func (l *DNSWebhookClient) RemoveRecord(name string) (result bool, err error) {
+func (l *DNSWebhookClient) RemoveRecord(clusterID, name string) (result bool, err error) {
 	var resp []byte
 	_, resp, err = l.http.Delete(getRecordAPI(l.ManagerAddress, name))
 

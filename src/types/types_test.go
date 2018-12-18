@@ -8,7 +8,7 @@ import (
 )
 
 func TestCheckDNSRecord(t *testing.T) {
-	r := DNSRecord{Name: "t.test.com", Value: "0.0.0.0", Type: "A"}
+	r := DNSRecord{Name: "t.test.com", Value: "0.0.0.0", Type: "A", ClusterID: "c1"}
 	result, errs := r.Check()
 
 	if !result && len(errs) == 0 {
@@ -18,7 +18,7 @@ func TestCheckDNSRecord(t *testing.T) {
 		t.Errorf("Expecting success. Got the otherwise for r := '%v'; errs := '%v'", r, errs)
 	}
 
-	rs := []DNSRecord{DNSRecord{Value: "0.0.0.0", Type: "A"}, DNSRecord{Type: "A"}, DNSRecord{}}
+	rs := []DNSRecord{DNSRecord{ClusterID: "c1", Value: "0.0.0.0", Type: "A"}, DNSRecord{Value: "0.0.0.0", Type: "A"}, DNSRecord{Type: "A"}, DNSRecord{}}
 
 	for i, r := range rs {
 		result, errs = r.Check()
