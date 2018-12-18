@@ -3,6 +3,7 @@ package client
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 	"os"
 	"path"
@@ -57,12 +58,21 @@ func (l *DNSWebhookClient) GetRecord(name string) (result types.DNSRecord, err e
 
 // AddRecord adds a DNS record
 func (l *DNSWebhookClient) AddRecord(name string, recordType string, value string) (result bool, err error) {
+	return l.addOrUpdateRecord(&types.DNSRecord{Value: value, Name: name, Type: recordType}, l.http.Post)
+}
+
+// UpdateRecord is a function that calls the defined webhook to update a specific dns record
+func (l *DNSWebhookClient) UpdateRecord(record *types.DNSRecord) (bool, error) {
+	return l.addOrUpdateRecord(record, l.http.Put)
+}
+
+// addOrUpdateRecord .
+func (l *DNSWebhookClient) addOrUpdateRecord(record *types.DNSRecord, action func(url string, payload []byte) (*http.Response, []byte, error)) (result bool, err error) {
 	var resp []byte
-	record := &types.DNSRecord{Value: value, Name: name, Type: recordType}
 	ok, errs := record.Check()
 	if ok {
 		mr, _ := json.Marshal(record)
-		_, resp, err = l.http.Post(getRecordAPI(l.ManagerAddress, ""), mr)
+		_, resp, err = action(getRecordAPI(l.ManagerAddress, ""), mr)
 		if err == nil {
 			err = json.Unmarshal(resp, &result)
 		}
