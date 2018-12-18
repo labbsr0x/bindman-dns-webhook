@@ -58,7 +58,7 @@ func (l *DNSWebhookClient) GetRecord(name string) (result types.DNSRecord, err e
 
 // AddRecord adds a DNS record
 func (l *DNSWebhookClient) AddRecord(name string, recordType string, value string) (result bool, err error) {
-	return l.addOrUpdateRecord(&types.DNSRecord{Value: value, Name: name, Type: recordType}, l.http.Put)
+	return l.addOrUpdateRecord(&types.DNSRecord{Value: value, Name: name, Type: recordType}, l.http.Post)
 }
 
 // UpdateRecord is a function that calls the defined webhook to update a specific dns record
