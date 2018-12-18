@@ -44,12 +44,17 @@ func (m *DummyManager) GetDNSRecord(name string) (*types.DNSRecord, error) {
 
 // AddDNSRecord adds a new DNS record
 func (m *DummyManager) AddDNSRecord(record types.DNSRecord) (bool, error) {
-	m.DNSRecords[record.Name] = record
-	return true, nil
+	return m.UpdateDNSRecord(record)
 }
 
 // RemoveDNSRecord removes a DNS record
 func (m *DummyManager) RemoveDNSRecord(name string) (bool, error) {
 	delete(m.DNSRecords, name)
+	return true, nil
+}
+
+// UpdateDNSRecord updates a DNS record. Adds, if record does not exist
+func (m *DummyManager) UpdateDNSRecord(record types.DNSRecord) (bool, error) {
+	m.DNSRecords[record.Name] = record
 	return true, nil
 }
