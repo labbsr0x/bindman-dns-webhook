@@ -30,6 +30,27 @@
 					"response": []
 				},
 				{
+					"name": "Update Record",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "http://localhost:7071/update/testeX.com",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7071",
+							"path": [
+								"update",
+								"testeX.com"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Remove Record",
 					"request": {
 						"method": "GET",
