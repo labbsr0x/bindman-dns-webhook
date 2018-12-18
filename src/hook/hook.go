@@ -11,7 +11,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// DNSWebhook defines the basic structure of a DNS Manager
+// DNSWebhook defines the basic structure of a DNS Webhook
 type DNSWebhook struct {
 
 	// DNSManager defines the dnsmanager object this webhook will call
