@@ -126,6 +126,35 @@
 					"response": []
 				},
 				{
+					"name": "Update Record",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Accept-Encoding",
+								"value": "application/json",
+								"disabled": false
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"testeX.com\",\n\t\"value\": \"0.0.0.0\",\n\t\"type\": \"A\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:7070/records",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7070",
+							"path": [
+								"records"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Remove Record",
 					"request": {
 						"method": "DELETE",
