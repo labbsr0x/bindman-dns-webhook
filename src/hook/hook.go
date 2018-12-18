@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/labbsr0x/bindman-dns-webhook/src/types"
+	"github.com/sirupsen/logrus"
 
 	"github.com/gorilla/mux"
 )

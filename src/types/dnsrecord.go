@@ -3,7 +3,7 @@ package types
 import (
 	"strings"
 
-	"github.com/Sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 // DNSRecord defines what we understand as a DNSRecord
