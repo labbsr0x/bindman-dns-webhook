@@ -131,7 +131,7 @@ type MockHTTPHelper struct {
 }
 
 func (m *MockHTTPHelper) Put(url string, data []byte) (*http.Response, []byte, error) {
-	return &http.Response{}, m.PostData, nil
+	return &http.Response{}, m.PutData, nil
 }
 
 func (m *MockHTTPHelper) Post(url string, data []byte) (*http.Response, []byte, error) {
