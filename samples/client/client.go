@@ -58,7 +58,7 @@ func removeRecord(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	client, err := hookClient.New(new(hookClient.BindmanHTTPHelper))
 	if err == nil {
-		result, err := client.RemoveRecord(vars["name"])
+		result, err := client.RemoveRecord(vars["name"], vars["type"])
 		if err == nil && result {
 			records, err := client.GetRecords()
 			if err == nil {

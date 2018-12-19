@@ -48,8 +48,8 @@ func (l *DNSWebhookClient) GetRecords() (result []types.DNSRecord, err error) {
 }
 
 // GetRecord communicates with the dns manager and gets a DNS Record
-func (l *DNSWebhookClient) GetRecord(name string) (result types.DNSRecord, err error) {
-	_, resp, err := l.http.Get(getRecordAPI(l.ManagerAddress, name))
+func (l *DNSWebhookClient) GetRecord(name, recordType string) (result types.DNSRecord, err error) {
+	_, resp, err := l.http.Get(getRecordAPI(l.ManagerAddress, name, recordType))
 	if err == nil {
 		err = json.Unmarshal(resp, &result)
 	}
@@ -83,9 +83,9 @@ func (l *DNSWebhookClient) addOrUpdateRecord(record *types.DNSRecord, action fun
 }
 
 // RemoveRecord is a function that calls the defined webhook to remove a specific dns record
-func (l *DNSWebhookClient) RemoveRecord(name string) (result bool, err error) {
+func (l *DNSWebhookClient) RemoveRecord(name, recordType string) (result bool, err error) {
 	var resp []byte
-	_, resp, err = l.http.Delete(getRecordAPI(l.ManagerAddress, name))
+	_, resp, err = l.http.Delete(getRecordAPI(l.ManagerAddress, name, recordType))
 
 	if err == nil {
 		err = json.Unmarshal(resp, &result)
@@ -95,9 +95,9 @@ func (l *DNSWebhookClient) RemoveRecord(name string) (result bool, err error) {
 }
 
 // getRecordAPI builds the url for consuming the api
-func getRecordAPI(managerAddress string, params string) string {
+func getRecordAPI(managerAddress string, params ...string) string {
 	u, _ := url.Parse("http://" + managerAddress)
-	u.Path = path.Join(u.Path, "/records/", params)
+	u.Path = path.Join(append([]string{u.Path, "/records/"}, params...)...)
 	return u.String()
 }
 

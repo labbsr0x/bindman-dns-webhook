@@ -35,7 +35,7 @@ func (m *DummyManager) GetDNSRecords() ([]types.DNSRecord, error) {
 }
 
 // GetDNSRecord retrieves the dns record identified by name
-func (m *DummyManager) GetDNSRecord(name string) (*types.DNSRecord, error) {
+func (m *DummyManager) GetDNSRecord(name, recordType string) (*types.DNSRecord, error) {
 	if record, ok := m.DNSRecords[name]; ok {
 		return &record, nil
 	}
@@ -48,7 +48,7 @@ func (m *DummyManager) AddDNSRecord(record types.DNSRecord) (bool, error) {
 }
 
 // RemoveDNSRecord removes a DNS record
-func (m *DummyManager) RemoveDNSRecord(name string) (bool, error) {
+func (m *DummyManager) RemoveDNSRecord(name, recordType string) (bool, error) {
 	delete(m.DNSRecords, name)
 	return true, nil
 }

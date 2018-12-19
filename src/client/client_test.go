@@ -55,15 +55,15 @@ func TestGetRecords(t *testing.T) {
 
 func TestGetRecord(t *testing.T) {
 	c, mockHelper := initClient()
-	expected := types.DNSRecord{Name: "teste"}
+	expected := types.DNSRecord{Name: "teste", Type: "A"}
 	mockHelper.GetData, _ = json.Marshal(expected)
 
-	record, err := c.GetRecord(expected.Name)
+	record, err := c.GetRecord(expected.Name, expected.Type)
 	if err != nil {
 		t.Errorf("Expecting successfull execution of GetRecord. Got error instead: '%v'", err)
 	}
 
-	if record.Name != expected.Name {
+	if record.Name != expected.Name || record.Type != expected.Type {
 		t.Errorf("Expecting the recovered record name to match exactly the expected record. Got '%v' instead", record.Name)
 	}
 }
@@ -100,7 +100,7 @@ func TestRemoveRecord(t *testing.T) {
 	expetectedResult := true
 
 	mockHelper.DeleteData, _ = json.Marshal(expetectedResult)
-	result, err := c.RemoveRecord("teste")
+	result, err := c.RemoveRecord("teste", "A")
 	if err != nil {
 		t.Errorf("Expecting to successfully add the record. Got error instead: %v", err)
 	}
@@ -111,8 +111,8 @@ func TestRemoveRecord(t *testing.T) {
 }
 
 func TestGetRecordAPI(t *testing.T) {
-	api := getRecordAPI("manager.test.com", "test.test.com")
-	expected := "http://manager.test.com/records/test.test.com"
+	api := getRecordAPI("manager.test.com", "test.test.com", "A")
+	expected := "http://manager.test.com/records/test.test.com/A"
 	if api != expected {
 		t.Errorf("Expecting '%v'; Got '%v'", expected, api)
 	}
