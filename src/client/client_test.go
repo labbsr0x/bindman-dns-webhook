@@ -68,19 +68,30 @@ func TestGetRecord(t *testing.T) {
 	}
 }
 
-func TestAddRecord(t *testing.T) {
+func TestAddAndUpdateRecord(t *testing.T) {
 	c, mockHelper := initClient()
 	expectedRecord := types.DNSRecord{Name: "teste", Value: "0.0.0.0", Type: "A"}
-	expetectedResult := true
+	expectedResult := true
 
-	mockHelper.PostData, _ = json.Marshal(expetectedResult)
+	mockHelper.PostData, _ = json.Marshal(expectedResult)
 	result, err := c.AddRecord(expectedRecord.Name, expectedRecord.Type, expectedRecord.Value)
 	if err != nil {
 		t.Errorf("Expecting to successfully add the record. Got error instead: %v", err)
 	}
 
-	if result != expetectedResult {
+	if result != expectedResult {
 		t.Errorf("Expecting to successfully add the record. Got failure instead.")
+	}
+
+	expectedRecord.Name = "teste2"
+	mockHelper.PutData, _ = json.Marshal(expectedResult)
+	result, err = c.UpdateRecord(&expectedRecord)
+	if err != nil {
+		t.Errorf("Expecting to successfully update the record. Got error instead: %v", err)
+	}
+
+	if result != expectedResult {
+		t.Errorf("Expecting to successfully update the record. Got failure instead.")
 	}
 }
 
