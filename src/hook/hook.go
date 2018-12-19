@@ -78,29 +78,36 @@ func (m *DNSWebhook) RemoveDNSRecord(w http.ResponseWriter, r *http.Request) {
 // AddDNSRecord handles a POST request
 // Expects a DNSRecord object as a body payload
 func (m *DNSWebhook) AddDNSRecord(w http.ResponseWriter, r *http.Request) {
-	m.addOrUpdateDNSRecord(w, r, m.DNSManager.AddDNSRecord)
+	defer handleError(w)
+	logrus.Infof("AddDNSRecord call. Http Request: %v", r)
+	code, err := m.addOrUpdateDNSRecord(w, r, m.DNSManager.AddDNSRecord)
+	types.PanicIfError(types.Error{Message: "Not possible to add a new DNS Record", Code: code, Err: err})
 }
 
 // UpdateDNSRecord updates a dns record
 // Expects a DNSRecord object as a body payload
 func (m *DNSWebhook) UpdateDNSRecord(w http.ResponseWriter, r *http.Request) {
-	m.addOrUpdateDNSRecord(w, r, m.DNSManager.UpdateDNSRecord)
+	defer handleError(w)
+	logrus.Infof("UpdateDNSRecord call. Http Request: %v", r)
+	code, err := m.addOrUpdateDNSRecord(w, r, m.DNSManager.UpdateDNSRecord)
+	types.PanicIfError(types.Error{Message: "Not possible to update the DNS Record", Code: code, Err: err})
 }
 
 // actOrUpdateDNSRecord
-func (m *DNSWebhook) addOrUpdateDNSRecord(w http.ResponseWriter, r *http.Request, action func(record types.DNSRecord) (bool, error)) {
-	defer handleError(w)
-	logrus.Infof("UpdateDNSRecord call. Http Request: %v", r)
-
-	decoder := json.NewDecoder(r.Body)
+func (m *DNSWebhook) addOrUpdateDNSRecord(w http.ResponseWriter, r *http.Request, do func(record types.DNSRecord) (bool, error)) (int, error) {
 	var record types.DNSRecord
+	var resp bool
+	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&record)
-	types.PanicIfError(types.Error{Message: fmt.Sprintf("Not possible to parse the body payload (%s)", r.Body), Code: 400, Err: err})
-
-	resp, err := action(record) // call to BL provider
-	types.PanicIfError(types.Error{Message: "Not possible to add/update a new DNS record", Code: 500, Err: err})
-
-	write200Response(resp, w)
+	if err == nil {
+		resp, err = do(record) // call to BL provider
+		if err == nil {
+			write200Response(resp, w)
+			return 200, nil
+		}
+		return 500, err
+	}
+	return 400, err
 }
 
 // write200Response writes the response to be sent
