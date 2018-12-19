@@ -7,10 +7,10 @@ type DNSManager interface {
 	GetDNSRecords() ([]DNSRecord, error)
 
 	// GetDNSRecord retrieves the dns record identified by name
-	GetDNSRecord(name string) (*DNSRecord, error)
+	GetDNSRecord(name, recordType string) (*DNSRecord, error)
 
 	// RemoveDNSRecord removes a DNS record
-	RemoveDNSRecord(name string) (bool, error)
+	RemoveDNSRecord(name, recordType string) (bool, error)
 
 	// AddDNSRecord adds a new DNS record
 	AddDNSRecord(record DNSRecord) (bool, error)

@@ -23,8 +23,8 @@ func Initialize(manager types.DNSManager) {
 	hook := &DNSWebhook{manager}
 	router := mux.NewRouter()
 	router.HandleFunc("/records", hook.GetDNSRecords).Methods("GET")
-	router.HandleFunc("/records/{name}", hook.GetDNSRecord).Methods("GET")
-	router.HandleFunc("/records/{name}", hook.RemoveDNSRecord).Methods("DELETE")
+	router.HandleFunc("/records/{name}/{type}", hook.GetDNSRecord).Methods("GET")
+	router.HandleFunc("/records/{name}/{type}", hook.RemoveDNSRecord).Methods("DELETE")
 	router.HandleFunc("/records", hook.AddDNSRecord).Methods("POST")
 	router.HandleFunc("/records", hook.UpdateDNSRecord).Methods("PUT")
 
@@ -46,14 +46,14 @@ func (m *DNSWebhook) GetDNSRecords(w http.ResponseWriter, r *http.Request) {
 	write200Response(resp, w)
 }
 
-// GetDNSRecord gets a specific DNS Record
+// GetDNSRecord gets a specific DNS Record. DNS Record name and type comes from url params
 func (m *DNSWebhook) GetDNSRecord(w http.ResponseWriter, r *http.Request) {
 	defer handleError(w)
 	logrus.Infof("GetDNSRecord call. Http Request: %v", r)
 
 	vars := mux.Vars(r)
 
-	resp, err := m.DNSManager.GetDNSRecord(vars["name"])
+	resp, err := m.DNSManager.GetDNSRecord(vars["name"], vars["type"])
 	types.PanicIfError(types.Error{Message: fmt.Sprintf("Not possible to get the DNS Record '%s'", vars["name"]), Code: 500, Err: err})
 
 	if resp == nil {
@@ -69,7 +69,7 @@ func (m *DNSWebhook) RemoveDNSRecord(w http.ResponseWriter, r *http.Request) {
 	logrus.Infof("RemoveDNSRecord call. Http Request: %v", r)
 	vars := mux.Vars(r)
 
-	resp, err := m.DNSManager.RemoveDNSRecord(vars["name"])
+	resp, err := m.DNSManager.RemoveDNSRecord(vars["name"], vars["type"])
 	types.PanicIfError(types.Error{Message: fmt.Sprintf("Not possible to remove the DNS record '%s'", vars["name"]), Code: 500, Err: err})
 
 	write200Response(resp, w)

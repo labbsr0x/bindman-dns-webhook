@@ -57,7 +57,7 @@
 						"header": [],
 						"body": {},
 						"url": {
-							"raw": "http://localhost:7071/remove/testeX.com",
+							"raw": "http://localhost:7071/remove/testeX.com/A",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -103,7 +103,7 @@
 						"header": [],
 						"body": {},
 						"url": {
-							"raw": "http://localhost:7070/records/testeX.com",
+							"raw": "http://localhost:7070/records/testeX.com/A",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -111,7 +111,8 @@
 							"port": "7070",
 							"path": [
 								"records",
-								"testeX.com"
+								"testeX.com",
+								"A"
 							]
 						}
 					},
@@ -182,7 +183,7 @@
 						"header": [],
 						"body": {},
 						"url": {
-							"raw": "http://localhost:7070/records/testeX.com",
+							"raw": "http://localhost:7070/records/testeX.com/A",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -190,7 +191,8 @@
 							"port": "7070",
 							"path": [
 								"records",
-								"testeX.com"
+								"testeX.com",
+								"A"
 							]
 						}
 					},
