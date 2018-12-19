@@ -95,10 +95,10 @@ func (m *DNSWebhook) addOrUpdateDNSRecord(w http.ResponseWriter, r *http.Request
 	decoder := json.NewDecoder(r.Body)
 	var record types.DNSRecord
 	err := decoder.Decode(&record)
-	types.PanicIfError(types.Error{Message: fmt.Sprintf("Not possible to parse the AddDNSRecord body payload (%s)", r.Body), Code: 400, Err: err})
+	types.PanicIfError(types.Error{Message: fmt.Sprintf("Not possible to parse the body payload (%s)", r.Body), Code: 400, Err: err})
 
 	resp, err := action(record) // call to BL provider
-	types.PanicIfError(types.Error{Message: "Not possible to add a new DNS record", Code: 500, Err: err})
+	types.PanicIfError(types.Error{Message: "Not possible to add/update a new DNS record", Code: 500, Err: err})
 
 	write200Response(resp, w)
 }
