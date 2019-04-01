@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/labbsr0x/bindman-dns-webhook/src/hook/metrics"
 	"github.com/labbsr0x/bindman-dns-webhook/src/types"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
 
 	"github.com/gorilla/mux"
@@ -19,14 +21,21 @@ type DNSWebhook struct {
 }
 
 // Initialize starts up a dns manager webhook
-func Initialize(manager types.DNSManager) {
+func Initialize(manager types.DNSManager, serviceName, serviceVersion string) {
 	hook := &DNSWebhook{manager}
+
+	prometheus := metrics.New(serviceName, serviceVersion)
+
 	router := mux.NewRouter()
 	router.HandleFunc("/records", hook.GetDNSRecords).Methods("GET")
 	router.HandleFunc("/records/{name}/{type}", hook.GetDNSRecord).Methods("GET")
 	router.HandleFunc("/records/{name}/{type}", hook.RemoveDNSRecord).Methods("DELETE")
 	router.HandleFunc("/records", hook.AddDNSRecord).Methods("POST")
 	router.HandleFunc("/records", hook.UpdateDNSRecord).Methods("PUT")
+
+	// exposes /metrics endpoint with standard golang metrics used by prometheus
+	router.Handle("/metrics", promhttp.Handler())
+	router.Use(prometheus.MetricsMiddleware)
 
 	logrus.Info("Initialized DNS Manager Webhook")
 	err := http.ListenAndServe("0.0.0.0:7070", router)
