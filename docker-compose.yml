@@ -1,0 +1,8 @@
+version: '3.5'
+
+services:
+
+  # execute unit tests in a golang environment
+  test:
+    image: labbsr0x/bindman-dns-webhook
+    build: .
