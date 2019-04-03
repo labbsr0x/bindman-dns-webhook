@@ -35,7 +35,7 @@ func InternalServerError(message string, details interface{}) *Error {
 
 // PanicIfError is just a wrapper to a panic call that propagates error when it's not nil
 func PanicIfError(e error) {
-	if e != nil { /**/
+	if e != nil {
 		logrus.Errorf(e.Error())
 		panic(e)
 	}
