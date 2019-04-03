@@ -5,7 +5,6 @@ import (
 	"errors"
 	"github.com/labbsr0x/bindman-dns-webhook/src/types"
 	"github.com/sirupsen/logrus"
-	"io"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -95,19 +94,14 @@ func (m *DNSWebhook) UpdateDNSRecord(w http.ResponseWriter, r *http.Request) {
 func (m *DNSWebhook) addOrUpdateDNSRecord(w http.ResponseWriter, r *http.Request, do func(record types.DNSRecord) error) error {
 	var record types.DNSRecord
 	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&record)
-	if err != nil {
-		if err == io.EOF {
-			return types.BadRequestError("You must pass a JSON formatted record on request body", nil)
-		}
-		return err
+	if err := decoder.Decode(&record); err != nil {
+		return types.BadRequestError("Invalid request body. You must pass a JSON formatted record on request body", nil)
 	}
-	errs := record.Check()
-	if errs != nil {
-		return types.BadRequestError("You must pass a JSON formatted record on request body", errs)
+	if errs := record.Check(); errs != nil {
+		return types.BadRequestError("Invalid request body. You must pass a JSON formatted record on request body", errs)
 	}
-	err = do(record) // call to BL provider
-	if err != nil {
+	// call to BL provider
+	if err := do(record); err != nil {
 		return err
 	}
 	w.WriteHeader(http.StatusNoContent)
