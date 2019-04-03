@@ -73,14 +73,24 @@ func TestAddAndUpdateRecord(t *testing.T) {
 	expectedRecord := types.DNSRecord{Name: "teste", Value: "0.0.0.0", Type: "A"}
 	expectedResult := true
 
+	// test AddRecord success
 	mockHelper.PostData, _ = json.Marshal(expectedResult)
 	result, err := c.AddRecord(expectedRecord.Name, expectedRecord.Type, expectedRecord.Value)
 	if err != nil {
 		t.Errorf("Expecting to successfully add the record. Got error instead: %v", err)
 	}
-
 	if result != expectedResult {
 		t.Errorf("Expecting to successfully add the record. Got failure instead.")
+	}
+
+	// test AddRecord validation error
+	invalidRecord := types.DNSRecord{Name: "missing fields"}
+	result, err = c.AddRecord(invalidRecord.Name, invalidRecord.Type, invalidRecord.Value)
+	if result {
+		t.Errorf("Expecting a 'false' result value. Got %v", result)
+	}
+	if err == nil {
+		t.Errorf("Expecting an error on adding an invalid record. Got nil")
 	}
 
 	expectedRecord.Name = "teste2"
