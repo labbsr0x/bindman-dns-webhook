@@ -67,7 +67,7 @@ func (m *DNSWebhook) RemoveDNSRecord(w http.ResponseWriter, r *http.Request) {
 	logrus.Infof("RemoveDNSRecord call. Http Request: %v", r)
 	vars := mux.Vars(r)
 
-	_, err := m.DNSManager.RemoveDNSRecord(vars["name"], vars["type"])
+	err := m.DNSManager.RemoveDNSRecord(vars["name"], vars["type"])
 	types.PanicIfError(err)
 
 	w.WriteHeader(http.StatusNoContent)
@@ -92,7 +92,7 @@ func (m *DNSWebhook) UpdateDNSRecord(w http.ResponseWriter, r *http.Request) {
 }
 
 // actOrUpdateDNSRecord
-func (m *DNSWebhook) addOrUpdateDNSRecord(w http.ResponseWriter, r *http.Request, do func(record types.DNSRecord) (bool, error)) error {
+func (m *DNSWebhook) addOrUpdateDNSRecord(w http.ResponseWriter, r *http.Request, do func(record types.DNSRecord) error) error {
 	var record types.DNSRecord
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&record)
@@ -106,7 +106,7 @@ func (m *DNSWebhook) addOrUpdateDNSRecord(w http.ResponseWriter, r *http.Request
 	if errs != nil {
 		return types.BadRequestError("You must pass a JSON formatted record on request body", errs)
 	}
-	_, err = do(record) // call to BL provider
+	err = do(record) // call to BL provider
 	if err != nil {
 		return err
 	}
