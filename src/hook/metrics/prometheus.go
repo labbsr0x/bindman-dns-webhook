@@ -3,8 +3,26 @@ package metrics
 import (
 	"github.com/prometheus/client_golang/prometheus"
 	"net/http"
+	"strconv"
 	"time"
 )
+
+// workaround to get status code on middleware
+type statusCodeResponseWriter struct {
+	http.ResponseWriter
+	statusCode int
+}
+
+func newLoggingResponseWriter(w http.ResponseWriter) *statusCodeResponseWriter {
+	// WriteHeader(int) is not called if our response implicitly returns 200 OK, so
+	// we default to that status code.
+	return &statusCodeResponseWriter{w, http.StatusOK}
+}
+
+func (s *statusCodeResponseWriter) WriteHeader(code int) {
+	s.statusCode = code
+	s.ResponseWriter.WriteHeader(code)
+}
 
 type Prometheus struct {
 	reqCount    *prometheus.CounterVec
@@ -15,13 +33,14 @@ type Prometheus struct {
 func New(serviceName, serviceVersion string) *Prometheus {
 	p := &Prometheus{}
 	constLabels := prometheus.Labels{"service": serviceName, "service_version": serviceVersion}
+	dynamicLabels := []string{"code", "method", "path"}
 	p.reqCount = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name:        "http_requests_total",
 			Help:        "How many HTTP requests processed, partitioned by status code, method and HTTP path.",
 			ConstLabels: constLabels,
 		},
-		[]string{"code", "method", "path"},
+		dynamicLabels,
 	)
 	prometheus.MustRegister(p.reqCount)
 
@@ -30,38 +49,37 @@ func New(serviceName, serviceVersion string) *Prometheus {
 		Help:        "How long it took to process the request, partitioned by status code, method and HTTP path.",
 		ConstLabels: constLabels,
 	},
-		[]string{"code", "method", "path"},
+		dynamicLabels,
 	)
 	prometheus.MustRegister(p.reqLatency)
 
 	p.reqInFlight = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Name:        "http_requests_in_flight_total",
+		Name:        "http_requests_in_flight",
 		Help:        "How many requests are being processed, partitioned method and HTTP path.",
 		ConstLabels: constLabels,
 	},
 		[]string{"method", "path"},
 	)
 	prometheus.MustRegister(p.reqInFlight)
+
 	return p
 }
 
-func (p *Prometheus) MetricsMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		start := time.Now()
-		path := r.URL.Path
+func (p *Prometheus) HandleFunc(path string, next http.HandlerFunc) (string, http.HandlerFunc) {
+	return path, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		responseWriter := newLoggingResponseWriter(w)
 
 		p.reqInFlight.WithLabelValues(r.Method, path).Inc()
 
-		next.ServeHTTP(w, r)
+		start := time.Now()
+		next.ServeHTTP(responseWriter, r)
+		duration := time.Since(start)
 
 		p.reqInFlight.WithLabelValues(r.Method, path).Dec()
 
-		statusCode := w.Header().Get("Status-Code")
-
-		p.reqCount.WithLabelValues(statusCode, r.Method, path).
-			Inc()
-		p.reqLatency.WithLabelValues(statusCode, r.Method, path).
-			Observe(float64(time.Since(start).Seconds()) / 1000000000)
+		strStatusCode := strconv.Itoa(responseWriter.statusCode)
+		p.reqCount.WithLabelValues(strStatusCode, r.Method, path).Inc()
+		p.reqLatency.WithLabelValues(strStatusCode, r.Method, path).Observe(duration.Seconds())
 
 	})
 }
