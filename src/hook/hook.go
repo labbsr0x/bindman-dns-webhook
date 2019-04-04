@@ -27,15 +27,14 @@ func Initialize(manager types.DNSManager, serviceName, serviceVersion string) {
 	prometheus := metrics.New(serviceName, serviceVersion)
 
 	router := mux.NewRouter()
-	router.HandleFunc("/records", hook.GetDNSRecords).Methods("GET")
-	router.HandleFunc("/records/{name}/{type}", hook.GetDNSRecord).Methods("GET")
-	router.HandleFunc("/records/{name}/{type}", hook.RemoveDNSRecord).Methods("DELETE")
-	router.HandleFunc("/records", hook.AddDNSRecord).Methods("POST")
-	router.HandleFunc("/records", hook.UpdateDNSRecord).Methods("PUT")
+	router.Handle(prometheus.HandleFunc("/records", hook.GetDNSRecords)).Methods("GET")
+	router.HandleFunc(prometheus.HandleFunc("/records/{name}/{type}", hook.GetDNSRecord)).Methods("GET")
+	router.HandleFunc(prometheus.HandleFunc("/records/{name}/{type}", hook.RemoveDNSRecord)).Methods("DELETE")
+	router.HandleFunc(prometheus.HandleFunc("/records", hook.AddDNSRecord)).Methods("POST")
+	router.HandleFunc(prometheus.HandleFunc("/records", hook.UpdateDNSRecord)).Methods("PUT")
 
 	// exposes /metrics endpoint with standard golang metrics used by prometheus
 	router.Handle("/metrics", promhttp.Handler())
-	router.Use(prometheus.MetricsMiddleware)
 
 	logrus.Info("Initialized DNS Manager Webhook")
 	err := http.ListenAndServe("0.0.0.0:7070", router)
