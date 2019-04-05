@@ -1,9 +1,11 @@
 package metrics
 
 import (
+	"github.com/go-errors/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -30,33 +32,42 @@ type Prometheus struct {
 	reqInFlight *prometheus.GaugeVec
 }
 
-func New(serviceName, serviceVersion string) *Prometheus {
+func New(serviceVersion string) *Prometheus {
+	if strings.TrimSpace(serviceVersion) == "" {
+		panic(errors.New("Service version must be a non-empty string"))
+	}
+
+	buildInfoGauge := prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Name:        "build_info",
+			Help:        "Information about build",
+			ConstLabels: prometheus.Labels{"version": serviceVersion},
+		})
+	buildInfoGauge.Set(1)
+
+	prometheus.MustRegister(buildInfoGauge)
+
 	p := &Prometheus{}
-	constLabels := prometheus.Labels{"service": serviceName, "service_version": serviceVersion}
-	dynamicLabels := []string{"code", "method", "path"}
 	p.reqCount = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name:        "http_requests_total",
-			Help:        "How many HTTP requests processed, partitioned by status code, method and HTTP path.",
-			ConstLabels: constLabels,
+			Name: "http_requests_total",
+			Help: "How many HTTP requests processed, partitioned by status code, method and HTTP path.",
 		},
-		dynamicLabels,
+		[]string{"code", "method", "path"},
 	)
 	prometheus.MustRegister(p.reqCount)
 
 	p.reqLatency = prometheus.NewHistogramVec(prometheus.HistogramOpts{
-		Name:        "http_request_duration_seconds",
-		Help:        "How long it took to process the request, partitioned by status code, method and HTTP path.",
-		ConstLabels: constLabels,
+		Name: "http_request_duration_seconds",
+		Help: "How long it took to process the request, partitioned by status code, method and HTTP path.",
 	},
-		dynamicLabels,
+		[]string{"code", "method", "path"},
 	)
 	prometheus.MustRegister(p.reqLatency)
 
 	p.reqInFlight = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Name:        "http_requests_in_flight",
-		Help:        "How many requests are being processed, partitioned method and HTTP path.",
-		ConstLabels: constLabels,
+		Name: "http_requests_in_flight",
+		Help: "How many requests are being processed, partitioned method and HTTP path.",
 	},
 		[]string{"method", "path"},
 	)
