@@ -21,10 +21,10 @@ type DNSWebhook struct {
 }
 
 // Initialize starts up a dns manager webhook
-func Initialize(manager types.DNSManager, serviceName, serviceVersion string) {
+func Initialize(manager types.DNSManager, serviceVersion string) {
 	hook := &DNSWebhook{manager}
 
-	prometheus := metrics.New(serviceName, serviceVersion)
+	prometheus := metrics.New(serviceVersion)
 
 	router := mux.NewRouter()
 	router.Handle(prometheus.HandleFunc("/records", hook.GetDNSRecords)).Methods("GET")
