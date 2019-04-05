@@ -16,7 +16,7 @@ func main() {
 	if ttl, err := strconv.Atoi(strings.Trim(os.Getenv("BINDMAN_DNS_TTL"), " ")); err == nil {
 		manager.TTL = ttl
 	}
-	hook.Initialize(&manager)
+	hook.Initialize(&manager, "1")
 }
 
 // DummyManager holds the information for managing a dummy dns server
