@@ -69,8 +69,8 @@ func (l *DNSWebhookClient) UpdateRecord(record *types.DNSRecord) (bool, error) {
 // addOrUpdateRecord .
 func (l *DNSWebhookClient) addOrUpdateRecord(record *types.DNSRecord, action func(url string, payload []byte) (*http.Response, []byte, error)) (result bool, err error) {
 	var resp []byte
-	ok, errs := record.Check()
-	if ok {
+	errs := record.Check()
+	if errs == nil {
 		mr, _ := json.Marshal(record)
 		_, resp, err = action(getRecordAPI(l.ManagerAddress, ""), mr)
 		if err == nil {
