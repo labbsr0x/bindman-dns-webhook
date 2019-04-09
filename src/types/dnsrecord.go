@@ -1,6 +1,7 @@
 package types
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/sirupsen/logrus"
@@ -19,25 +20,21 @@ type DNSRecord struct {
 }
 
 // Check verifies if the DNS record satisfies certain conditions
-func (record *DNSRecord) Check() (bool, []string) {
+func (record *DNSRecord) Check() []string {
 	logrus.Infof("Record to check: '%v'", record)
-	noErrors := true
+	emptyValueErrorMessage := "the value of field '%s' cannot be empty"
 	var errs []string
 
-	if strings.Trim(record.Name, " ") == "" {
-		noErrors = false
-		errs = append(errs, "Empty record name")
+	if strings.TrimSpace(record.Name) == "" {
+		errs = append(errs, fmt.Sprintf(emptyValueErrorMessage, "name"))
 	}
 
-	if strings.Trim(record.Value, " ") == "" {
-		noErrors = false
-		errs = append(errs, "Empty value")
+	if strings.TrimSpace(record.Value) == "" {
+		errs = append(errs, fmt.Sprintf(emptyValueErrorMessage, "value"))
 	}
 
-	if strings.Trim(record.Type, " ") == "" {
-		noErrors = false
-		errs = append(errs, "Empty type")
+	if strings.TrimSpace(record.Type) == "" {
+		errs = append(errs, fmt.Sprintf(emptyValueErrorMessage, "type"))
 	}
-
-	return noErrors, errs
+	return errs
 }
