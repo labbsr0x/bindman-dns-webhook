@@ -74,11 +74,11 @@ func Test_handleError(t *testing.T) {
 		},
 		{"must write status code and body from error recovered when it is instance of types.Error ",
 			args{types.BadRequestError("error", nil)},
-			expected{http.StatusBadRequest, "{\"message\":\"error\",\"code\":400,\"details\":null}\n"},
+			expected{http.StatusBadRequest, "{\"message\":\"error\",\"code\":400}\n"},
 		},
 		{"must write a default internal server error when recovered error is not instance of types.Error ",
 			args{fmt.Errorf("unknow error")},
-			expected{http.StatusInternalServerError, "{\"message\":\"An internal server error occurred, please contact the system administrator.\",\"code\":500,\"details\":null}\n"},
+			expected{http.StatusInternalServerError, "{\"message\":\"An internal server error occurred, please contact the system administrator.\",\"code\":500}\n"},
 		},
 	}
 	for _, tt := range tests {
