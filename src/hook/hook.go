@@ -95,10 +95,10 @@ func (m *DNSWebhook) addOrUpdateDNSRecord(w http.ResponseWriter, r *http.Request
 	var record types.DNSRecord
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&record); err != nil {
-		return types.BadRequestError("Invalid request body. You must pass a JSON formatted record on request body", nil)
+		return types.BadRequestError("Invalid request body. You must pass a JSON formatted record on request body", err)
 	}
 	if errs := record.Check(); errs != nil {
-		return types.BadRequestError("Invalid request body. You must pass a JSON formatted record on request body", errs)
+		return types.BadRequestError("Invalid request body. You must pass a JSON formatted record on request body", nil, errs...)
 	}
 	// call to BL provider
 	if err := do(record); err != nil {
