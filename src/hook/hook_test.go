@@ -21,7 +21,7 @@ func TestInitialize(t *testing.T) {
 				t.Error("A panic must occur when a nil DNSManager is passed to Initialize function")
 			}
 		}()
-		Initialize(nil)
+		Initialize(nil, "1")
 	})
 }
 
