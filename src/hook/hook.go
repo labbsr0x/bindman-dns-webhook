@@ -3,11 +3,13 @@ package hook
 import (
 	"encoding/json"
 	"errors"
-	"github.com/labbsr0x/bindman-dns-webhook/src/types"
-	"github.com/sirupsen/logrus"
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/labbsr0x/bindman-dns-webhook/src/hook/metrics"
+	"github.com/labbsr0x/bindman-dns-webhook/src/types"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/sirupsen/logrus"
 )
 
 // DNSWebhook defines the basic structure of a DNS Webhook
@@ -18,18 +20,23 @@ type DNSWebhook struct {
 }
 
 // Initialize starts up a dns manager webhook
-func Initialize(manager types.DNSManager) {
+func Initialize(manager types.DNSManager, serviceVersion string) {
 	if manager == nil {
 		panic(errors.New("A non-nil DNSManager is required to initialize the hook"))
 	}
-
 	hook := &DNSWebhook{manager}
+
+	prometheus := metrics.New(serviceVersion)
+
 	router := mux.NewRouter()
-	router.HandleFunc("/records", hook.GetDNSRecords).Methods("GET")
-	router.HandleFunc("/records/{name}/{type}", hook.GetDNSRecord).Methods("GET")
-	router.HandleFunc("/records/{name}/{type}", hook.RemoveDNSRecord).Methods("DELETE")
-	router.HandleFunc("/records", hook.AddDNSRecord).Methods("POST")
-	router.HandleFunc("/records", hook.UpdateDNSRecord).Methods("PUT")
+	router.Handle(prometheus.HandleFunc("/records", hook.GetDNSRecords)).Methods("GET")
+	router.HandleFunc(prometheus.HandleFunc("/records/{name}/{type}", hook.GetDNSRecord)).Methods("GET")
+	router.HandleFunc(prometheus.HandleFunc("/records/{name}/{type}", hook.RemoveDNSRecord)).Methods("DELETE")
+	router.HandleFunc(prometheus.HandleFunc("/records", hook.AddDNSRecord)).Methods("POST")
+	router.HandleFunc(prometheus.HandleFunc("/records", hook.UpdateDNSRecord)).Methods("PUT")
+
+	// exposes /metrics endpoint with standard golang metrics used by prometheus
+	router.Handle("/metrics", promhttp.Handler())
 
 	logrus.Info("Initialized DNS Manager Webhook")
 	err := http.ListenAndServe("0.0.0.0:7070", router)
