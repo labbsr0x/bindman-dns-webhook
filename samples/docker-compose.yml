@@ -17,4 +17,4 @@ services:
     ports:
       - 7071:7071
     environment:
-      - BINDMAN_DNS_MANAGER_ADDRESS=bindman-dns-manager:7070
+      - BINDMAN_DNS_MANAGER_ADDRESS=http://bindman-dns-manager:7070

@@ -2,117 +2,114 @@ package client
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/labbsr0x/goh/gohclient"
 	"net/http"
-	"net/url"
-	"os"
-	"path"
 	"strings"
+	"time"
 
 	"github.com/labbsr0x/bindman-dns-webhook/src/types"
 )
 
+const recordsPath = "/records"
+
 // DNSWebhookClient defines the basic structure of a DNS Listener
 type DNSWebhookClient struct {
-
-	// ManagerAddress the address of the dns manager instance
-	ManagerAddress string
-
-	http HTTPHelper
+	clientAPI gohclient.API
 }
 
 // New builds the client to communicate with the dns manager
-func New(httpHelper HTTPHelper) (*DNSWebhookClient, error) {
-	ma, err := getAddress("BINDMAN_DNS_MANAGER_ADDRESS")
+func New(managerAddress string) (*DNSWebhookClient, error) {
+	if strings.TrimSpace(managerAddress) == "" {
+		return nil, errors.New("managerAddress parameter must be a non-empty string")
+	}
+	client, err := gohclient.New(&http.Client{Timeout: time.Minute}, managerAddress)
 	if err != nil {
 		return nil, err
 	}
-
-	if httpHelper == nil {
-		return nil, fmt.Errorf("Not possible to start a listener without an HTTPHelper instance")
-	}
+	client.Accept = "application/json"
+	client.ContentType = "application/json"
+	client.UserAgent = "bindman-dns-webhook-client"
 
 	return &DNSWebhookClient{
-		ManagerAddress: ma,
-		http:           httpHelper,
+		clientAPI: client,
 	}, nil
 }
 
 // GetRecords communicates with the dns manager and gets the DNS Records
 func (l *DNSWebhookClient) GetRecords() (result []types.DNSRecord, err error) {
-	_, resp, err := l.http.Get(getRecordAPI(l.ManagerAddress, ""))
-	if err == nil {
-		err = json.Unmarshal(resp, &result)
+	resp, data, err := l.clientAPI.Get(recordsPath)
+	if err != nil {
+		return
+	}
+	if resp.StatusCode == http.StatusOK {
+		err = json.Unmarshal(data, &result)
+	} else {
+		err = parseResponseBodyToError(data)
 	}
 	return
 }
 
 // GetRecord communicates with the dns manager and gets a DNS Record
 func (l *DNSWebhookClient) GetRecord(name, recordType string) (result types.DNSRecord, err error) {
-	_, resp, err := l.http.Get(getRecordAPI(l.ManagerAddress, name, recordType))
-	if err == nil {
-		err = json.Unmarshal(resp, &result)
+	resp, data, err := l.clientAPI.Get(fmt.Sprintf(recordsPath+"/%s/%s", name, recordType))
+	if err != nil {
+		return
+	}
+	if resp.StatusCode == http.StatusOK {
+		err = json.Unmarshal(data, &result)
+	} else {
+		err = parseResponseBodyToError(data)
 	}
 	return
 }
 
 // AddRecord adds a DNS record
-func (l *DNSWebhookClient) AddRecord(name string, recordType string, value string) (result bool, err error) {
-	return l.addOrUpdateRecord(&types.DNSRecord{Value: value, Name: name, Type: recordType}, l.http.Post)
+func (l *DNSWebhookClient) AddRecord(name string, recordType string, value string) error {
+	return l.addOrUpdateRecord(&types.DNSRecord{Value: value, Name: name, Type: recordType}, l.clientAPI.Post)
 }
 
 // UpdateRecord is a function that calls the defined webhook to update a specific dns record
-func (l *DNSWebhookClient) UpdateRecord(record *types.DNSRecord) (bool, error) {
-	return l.addOrUpdateRecord(record, l.http.Put)
+func (l *DNSWebhookClient) UpdateRecord(record *types.DNSRecord) error {
+	return l.addOrUpdateRecord(record, l.clientAPI.Put)
 }
 
 // addOrUpdateRecord .
-func (l *DNSWebhookClient) addOrUpdateRecord(record *types.DNSRecord, action func(url string, payload []byte) (*http.Response, []byte, error)) (result bool, err error) {
-	var resp []byte
-	errs := record.Check()
-	if errs == nil {
-		mr, _ := json.Marshal(record)
-		_, resp, err = action(getRecordAPI(l.ManagerAddress, ""), mr)
-		if err == nil {
-			err = json.Unmarshal(resp, &result)
-		}
-		return
+func (l *DNSWebhookClient) addOrUpdateRecord(record *types.DNSRecord, action func(url string, body []byte) (*http.Response, []byte, error)) error {
+	if errs := record.Check(); errs != nil {
+		return fmt.Errorf("invalid DNS Record: %v", strings.Join(errs, ", "))
 	}
-	err = fmt.Errorf("Invalid DNS Record: %v", strings.Join(errs, ", "))
-	return
+	mr, err := json.Marshal(record)
+	if err != nil {
+		return err
+	}
+	resp, data, err := action(recordsPath, mr)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != http.StatusNoContent {
+		return parseResponseBodyToError(data)
+	}
+	return nil
 }
 
 // RemoveRecord is a function that calls the defined webhook to remove a specific dns record
-func (l *DNSWebhookClient) RemoveRecord(name, recordType string) (result bool, err error) {
-	var resp []byte
-	_, resp, err = l.http.Delete(getRecordAPI(l.ManagerAddress, name, recordType))
-
-	if err == nil {
-		err = json.Unmarshal(resp, &result)
+func (l *DNSWebhookClient) RemoveRecord(name, recordType string) error {
+	resp, data, err := l.clientAPI.Delete(fmt.Sprintf(recordsPath+"/%s/%s", name, recordType))
+	if err != nil {
+		return err
 	}
-
-	return
+	if resp.StatusCode != http.StatusNoContent {
+		return parseResponseBodyToError(data)
+	}
+	return err
 }
 
-// getRecordAPI builds the url for consuming the api
-func getRecordAPI(managerAddress string, params ...string) string {
-	u, _ := url.Parse("http://" + managerAddress)
-	u.Path = path.Join(append([]string{u.Path, "/records/"}, params...)...)
-	return u.String()
-}
-
-// getAddress gets an env variable address identified by name
-func getAddress(name string) (addr string, err error) {
-	addr = os.Getenv(name)
-	addr = strings.Trim(addr, " ")
-
-	if addr == "" {
-		err = fmt.Errorf("The %s environment variable was not defined", name)
+func parseResponseBodyToError(data []byte) error {
+	var err types.Error
+	if errUnmarshal := json.Unmarshal(data, &err); errUnmarshal != nil {
+		return errUnmarshal
 	}
-
-	if strings.Contains(addr, "http") {
-		err = fmt.Errorf("The %s environment variable cannot have a schema defined", name)
-	}
-
-	return
+	return &err
 }
