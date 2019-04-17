@@ -16,7 +16,7 @@ const recordsPath = "/records"
 
 // DNSWebhookClient defines the basic structure of a DNS Listener
 type DNSWebhookClient struct {
-	clientAPI gohclient.API
+	ClientAPI gohclient.API
 }
 
 // New builds the client to communicate with the dns manager
@@ -33,13 +33,13 @@ func New(managerAddress string) (*DNSWebhookClient, error) {
 	client.UserAgent = "bindman-dns-webhook-client"
 
 	return &DNSWebhookClient{
-		clientAPI: client,
+		ClientAPI: client,
 	}, nil
 }
 
 // GetRecords communicates with the dns manager and gets the DNS Records
 func (l *DNSWebhookClient) GetRecords() (result []types.DNSRecord, err error) {
-	resp, data, err := l.clientAPI.Get(recordsPath)
+	resp, data, err := l.ClientAPI.Get(recordsPath)
 	if err != nil {
 		return
 	}
@@ -53,7 +53,7 @@ func (l *DNSWebhookClient) GetRecords() (result []types.DNSRecord, err error) {
 
 // GetRecord communicates with the dns manager and gets a DNS Record
 func (l *DNSWebhookClient) GetRecord(name, recordType string) (result types.DNSRecord, err error) {
-	resp, data, err := l.clientAPI.Get(fmt.Sprintf(recordsPath+"/%s/%s", name, recordType))
+	resp, data, err := l.ClientAPI.Get(fmt.Sprintf(recordsPath+"/%s/%s", name, recordType))
 	if err != nil {
 		return
 	}
@@ -67,12 +67,12 @@ func (l *DNSWebhookClient) GetRecord(name, recordType string) (result types.DNSR
 
 // AddRecord adds a DNS record
 func (l *DNSWebhookClient) AddRecord(name string, recordType string, value string) error {
-	return l.addOrUpdateRecord(&types.DNSRecord{Value: value, Name: name, Type: recordType}, l.clientAPI.Post)
+	return l.addOrUpdateRecord(&types.DNSRecord{Value: value, Name: name, Type: recordType}, l.ClientAPI.Post)
 }
 
 // UpdateRecord is a function that calls the defined webhook to update a specific dns record
 func (l *DNSWebhookClient) UpdateRecord(record *types.DNSRecord) error {
-	return l.addOrUpdateRecord(record, l.clientAPI.Put)
+	return l.addOrUpdateRecord(record, l.ClientAPI.Put)
 }
 
 // addOrUpdateRecord .
@@ -96,7 +96,7 @@ func (l *DNSWebhookClient) addOrUpdateRecord(record *types.DNSRecord, action fun
 
 // RemoveRecord is a function that calls the defined webhook to remove a specific dns record
 func (l *DNSWebhookClient) RemoveRecord(name, recordType string) error {
-	resp, data, err := l.clientAPI.Delete(fmt.Sprintf(recordsPath+"/%s/%s", name, recordType))
+	resp, data, err := l.ClientAPI.Delete(fmt.Sprintf(recordsPath+"/%s/%s", name, recordType))
 	if err != nil {
 		return err
 	}
