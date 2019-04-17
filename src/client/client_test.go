@@ -89,7 +89,7 @@ func TestDNSWebhookClient_GetRecords(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			l := &DNSWebhookClient{
-				clientAPI: tt.fields.clientAPI,
+				ClientAPI: tt.fields.clientAPI,
 			}
 			gotResult, err := l.GetRecords()
 			if (err != nil) != tt.wantErr {
@@ -160,7 +160,7 @@ func TestDNSWebhookClient_GetRecord(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			l := &DNSWebhookClient{
-				clientAPI: tt.fields.clientAPI,
+				ClientAPI: tt.fields.clientAPI,
 			}
 			gotResult, err := l.GetRecord(tt.parans.name, tt.parans.typ)
 			if (err != nil) != tt.wantErr {
@@ -220,7 +220,7 @@ func TestDNSWebhookClient_RemoveRecord(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			l := &DNSWebhookClient{
-				clientAPI: tt.fields.clientAPI,
+				ClientAPI: tt.fields.clientAPI,
 			}
 			if err := l.RemoveRecord(tt.args.name, tt.args.recordType); (err != nil) != (tt.wantErr != nil) {
 				t.Errorf("DNSWebhookClient.RemoveRecord() error = %v, wantErr %v", err, tt.wantErr)
@@ -275,7 +275,7 @@ func TestDNSWebhookClient_UpdateRecord(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			l := &DNSWebhookClient{
-				clientAPI: tt.fields.clientAPI,
+				ClientAPI: tt.fields.clientAPI,
 			}
 			if err := l.UpdateRecord(&types.DNSRecord{Name: tt.args.name, Type: tt.args.recordType, Value: tt.args.value}); (err != nil) != tt.wantErr {
 				t.Errorf("DNSWebhookClient.AddRecord() error = %v, wantErr %v", err, tt.wantErr)
@@ -332,7 +332,7 @@ func TestDNSWebhookClient_AddRecord(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			l := &DNSWebhookClient{
-				clientAPI: tt.fields.clientAPI,
+				ClientAPI: tt.fields.clientAPI,
 			}
 			if err := l.AddRecord(tt.args.name, tt.args.recordType, tt.args.value); (err != nil) != tt.wantErr {
 				t.Errorf("DNSWebhookClient.AddRecord() error = %v, wantErr %v", err, tt.wantErr)
