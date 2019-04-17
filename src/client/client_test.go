@@ -164,17 +164,17 @@ func TestDNSWebhookClient_GetRecord(t *testing.T) {
 			}
 			gotResult, err := l.GetRecord(tt.parans.name, tt.parans.typ)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("DNSWebhookClient.GetRecords() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("DNSWebhookClient.GetRecord() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			// compare error with wanted result when error expected
 			if tt.wantErr {
 				if !reflect.DeepEqual(err, tt.wantResult) {
-					t.Errorf("DNSWebhookClient.GetRecords() = %#v, want %#v", err, tt.wantResult)
+					t.Errorf("DNSWebhookClient.GetRecord() = %#v, want %#v", err, tt.wantResult)
 				}
 			} else {
 				if !reflect.DeepEqual(gotResult, tt.wantResult) {
-					t.Errorf("DNSWebhookClient.GetRecords() = %v, want %v", gotResult, tt.wantResult)
+					t.Errorf("DNSWebhookClient.GetRecord() = %v, want %v", gotResult, tt.wantResult)
 				}
 			}
 		})
