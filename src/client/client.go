@@ -4,12 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/labbsr0x/bindman-dns-webhook/src/types"
 	"github.com/labbsr0x/goh/gohclient"
 	"net/http"
 	"strings"
-	"time"
-
-	"github.com/labbsr0x/bindman-dns-webhook/src/types"
 )
 
 const recordsPath = "/records"
@@ -20,11 +18,11 @@ type DNSWebhookClient struct {
 }
 
 // New builds the client to communicate with the dns manager
-func New(managerAddress string) (*DNSWebhookClient, error) {
+func New(managerAddress string, httpClient *http.Client) (*DNSWebhookClient, error) {
 	if strings.TrimSpace(managerAddress) == "" {
 		return nil, errors.New("managerAddress parameter must be a non-empty string")
 	}
-	client, err := gohclient.New(&http.Client{Timeout: time.Minute}, managerAddress)
+	client, err := gohclient.New(httpClient, managerAddress)
 	if err != nil {
 		return nil, err
 	}

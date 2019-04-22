@@ -13,7 +13,7 @@ var webHookClient *hookClient.DNSWebhookClient
 
 func main() {
 	managerAddress := os.Getenv("BINDMAN_DNS_MANAGER_ADDRESS")
-	client, err := hookClient.New(managerAddress)
+	client, err := hookClient.New(managerAddress, http.DefaultClient)
 	if err != nil {
 		panic(err)
 	}
