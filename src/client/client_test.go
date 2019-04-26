@@ -3,165 +3,381 @@ package client
 import (
 	"encoding/json"
 	"net/http"
-	"os"
+	"net/url"
+	"reflect"
 	"testing"
 
 	"github.com/labbsr0x/bindman-dns-webhook/src/types"
+	"github.com/labbsr0x/goh/gohclient"
 )
 
-func initClient() (*DNSWebhookClient, *MockHTTPHelper) {
-	env := "BINDMAN_DNS_MANAGER_ADDRESS"
-	mockHelper := new(MockHTTPHelper)
-	os.Setenv(env, "0.0.0.0")
-	c, _ := New(mockHelper)
-
-	return c, mockHelper
-}
-
 func TestNew(t *testing.T) {
-	env := "BINDMAN_DNS_MANAGER_ADDRESS"
-	mockHelper := new(MockHTTPHelper)
-	os.Setenv(env, "0.0.0.0")
-	_, err := New(mockHelper)
-	if err != nil {
-		t.Errorf("Expecting client.New to succeed. Got error instead: '%v'", err)
+	type args struct {
+		managerAddress string
+		http           *http.Client
 	}
-
-	c, err := New(nil)
-	if err == nil {
-		t.Errorf("Expecting client.New to fail. Got success instead: '%v'", c)
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{
+			name:    "empty manager address string",
+			args:    args{managerAddress: ""},
+			wantErr: true,
+		},
+		{
+			name:    "valid manager address",
+			args:    args{managerAddress: "0.0.0.0"},
+			wantErr: false,
+		},
 	}
-
-	os.Setenv(env, "")
-	c, err = New(mockHelper)
-	if err == nil {
-		t.Errorf("Expecting client.New to fail. Got success instead: '%v'", c)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := New(tt.args.managerAddress, tt.args.http)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("New() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if tt.wantErr && got != nil {
+				t.Errorf("New() must return a nil *DNSWebhookClient when an error occurred, got %v", got)
+			}
+		})
 	}
 }
 
-func TestGetRecords(t *testing.T) {
-	c, mockHelper := initClient()
+func TestDNSWebhookClient_GetRecords(t *testing.T) {
 	expected := []types.DNSRecord{{}, {}}
-	mockHelper.GetData, _ = json.Marshal(expected)
-
-	records, err := c.GetRecords()
+	expectedData, err := json.Marshal(expected)
 	if err != nil {
-		t.Errorf("Expecting successfull execution of GetRecords. Got error instead: '%v'", err)
+		t.Fatal(err)
 	}
-	if len(records) != len(expected) {
-		t.Errorf("Expecting the number of records to be exactly the ")
-	}
-}
 
-func TestGetRecord(t *testing.T) {
-	c, mockHelper := initClient()
-	expected := types.DNSRecord{Name: "teste", Type: "A"}
-	mockHelper.GetData, _ = json.Marshal(expected)
-
-	record, err := c.GetRecord(expected.Name, expected.Type)
+	expectedError := types.BadRequestError("get records error", nil)
+	expectedErrorData, err := json.Marshal(expectedError)
 	if err != nil {
-		t.Errorf("Expecting successfull execution of GetRecord. Got error instead: '%v'", err)
+		t.Fatal(err)
 	}
 
-	if record.Name != expected.Name || record.Type != expected.Type {
-		t.Errorf("Expecting the recovered record name to match exactly the expected record. Got '%v' instead", record.Name)
+	type fields struct {
+		clientAPI gohclient.API
+	}
+	tests := []struct {
+		name       string
+		fields     fields
+		wantResult interface{}
+		wantErr    bool
+	}{
+		{
+			name:       "request success and 200 status code",
+			fields:     fields{&MockHTTPHelperSuccess{Status: http.StatusOK, Data: expectedData}},
+			wantResult: expected,
+			wantErr:    false,
+		},
+		{
+			name:       "request success and 400 status code",
+			fields:     fields{&MockHTTPHelperSuccess{Status: http.StatusBadRequest, Data: expectedErrorData}},
+			wantResult: expectedError,
+			wantErr:    true,
+		},
+		{
+			name:       "request error",
+			fields:     fields{&MockHTTPHelperError{err: &url.Error{Op: "request error get record"}}},
+			wantResult: &url.Error{Op: "request error get record"},
+			wantErr:    true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			l := &DNSWebhookClient{
+				ClientAPI: tt.fields.clientAPI,
+			}
+			gotResult, err := l.GetRecords()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("DNSWebhookClient.GetRecords() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			// compare error with wanted result when error expected
+			if tt.wantErr {
+				if !reflect.DeepEqual(err, tt.wantResult) {
+					t.Errorf("DNSWebhookClient.GetRecords() = %#v, want %#v", err, tt.wantResult)
+				}
+			} else {
+				if !reflect.DeepEqual(gotResult, tt.wantResult) {
+					t.Errorf("DNSWebhookClient.GetRecords() = %v, want %v", gotResult, tt.wantResult)
+				}
+			}
+		})
 	}
 }
 
-func TestAddAndUpdateRecord(t *testing.T) {
-	c, mockHelper := initClient()
-	expectedRecord := types.DNSRecord{Name: "teste", Value: "0.0.0.0", Type: "A"}
-	expectedResult := true
-
-	// test AddRecord success
-	mockHelper.PostData, _ = json.Marshal(expectedResult)
-	result, err := c.AddRecord(expectedRecord.Name, expectedRecord.Type, expectedRecord.Value)
+func TestDNSWebhookClient_GetRecord(t *testing.T) {
+	expected := types.DNSRecord{Name: "test", Type: "A"}
+	expectedData, err := json.Marshal(expected)
 	if err != nil {
-		t.Errorf("Expecting to successfully add the record. Got error instead: %v", err)
-	}
-	if result != expectedResult {
-		t.Errorf("Expecting to successfully add the record. Got failure instead.")
+		t.Fatal(err)
 	}
 
-	// test AddRecord validation error
-	invalidRecord := types.DNSRecord{Name: "missing fields"}
-	result, err = c.AddRecord(invalidRecord.Name, invalidRecord.Type, invalidRecord.Value)
-	if result {
-		t.Errorf("Expecting a 'false' result value. Got %v", result)
-	}
-	if err == nil {
-		t.Errorf("Expecting an error on adding an invalid record. Got nil")
-	}
-
-	expectedRecord.Name = "teste2"
-	mockHelper.PutData, _ = json.Marshal(expectedResult)
-	result, err = c.UpdateRecord(&expectedRecord)
+	expectedError := types.BadRequestError("get record error", nil)
+	expectedErrorData, err := json.Marshal(expectedError)
 	if err != nil {
-		t.Errorf("Expecting to successfully update the record. Got error instead: %v", err)
+		t.Fatal(err)
 	}
 
-	if result != expectedResult {
-		t.Errorf("Expecting to successfully update the record. Got failure instead.")
+	type fields struct {
+		clientAPI gohclient.API
+	}
+	type parans struct {
+		name string
+		typ  string
+	}
+	tests := []struct {
+		name       string
+		fields     fields
+		parans     parans
+		wantResult interface{}
+		wantErr    bool
+	}{
+		{
+			name:       "request success and 200 status code",
+			fields:     fields{&MockHTTPHelperSuccess{Status: http.StatusOK, Data: expectedData}},
+			parans:     parans{name: "teste", typ: "A"},
+			wantResult: expected,
+			wantErr:    false,
+		},
+		{
+			name:       "request success and 400 status code",
+			fields:     fields{&MockHTTPHelperSuccess{Status: http.StatusBadRequest, Data: expectedErrorData}},
+			wantResult: expectedError,
+			wantErr:    true,
+		},
+		{
+			name:       "request error",
+			fields:     fields{&MockHTTPHelperError{err: &url.Error{Op: "request error get record"}}},
+			wantResult: &url.Error{Op: "request error get record"},
+			wantErr:    true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			l := &DNSWebhookClient{
+				ClientAPI: tt.fields.clientAPI,
+			}
+			gotResult, err := l.GetRecord(tt.parans.name, tt.parans.typ)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("DNSWebhookClient.GetRecord() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			// compare error with wanted result when error expected
+			if tt.wantErr {
+				if !reflect.DeepEqual(err, tt.wantResult) {
+					t.Errorf("DNSWebhookClient.GetRecord() = %#v, want %#v", err, tt.wantResult)
+				}
+			} else {
+				if !reflect.DeepEqual(gotResult, tt.wantResult) {
+					t.Errorf("DNSWebhookClient.GetRecord() = %v, want %v", gotResult, tt.wantResult)
+				}
+			}
+		})
 	}
 }
 
-func TestRemoveRecord(t *testing.T) {
-	c, mockHelper := initClient()
-	expetectedResult := true
-
-	mockHelper.DeleteData, _ = json.Marshal(expetectedResult)
-	result, err := c.RemoveRecord("teste", "A")
+func TestDNSWebhookClient_RemoveRecord(t *testing.T) {
+	expectedError := types.BadRequestError("remove record error", nil)
+	expectedErrorData, err := json.Marshal(expectedError)
 	if err != nil {
-		t.Errorf("Expecting to successfully add the record. Got error instead: %v", err)
+		t.Fatal(err)
 	}
 
-	if result != expetectedResult {
-		t.Errorf("Expecting to successfully add the record. Got failure instead.")
+	type fields struct {
+		clientAPI gohclient.API
+	}
+	type args struct {
+		name       string
+		recordType string
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr error
+	}{
+		{
+			name:   "request success and 204 status code",
+			fields: fields{&MockHTTPHelperSuccess{Status: http.StatusNoContent}},
+			args:   args{name: "teste", recordType: "A"},
+		},
+		{
+			name:    "request success and 400 status code",
+			fields:  fields{&MockHTTPHelperSuccess{Status: http.StatusBadRequest, Data: expectedErrorData}},
+			wantErr: expectedError,
+		},
+		{
+			name:    "request error",
+			fields:  fields{&MockHTTPHelperError{err: &url.Error{Op: "request error remove records"}}},
+			wantErr: &url.Error{Op: "request error remove records"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			l := &DNSWebhookClient{
+				ClientAPI: tt.fields.clientAPI,
+			}
+			if err := l.RemoveRecord(tt.args.name, tt.args.recordType); (err != nil) != (tt.wantErr != nil) {
+				t.Errorf("DNSWebhookClient.RemoveRecord() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
 	}
 }
 
-func TestGetRecordAPI(t *testing.T) {
-	api := getRecordAPI("manager.test.com", "test.test.com", "A")
-	expected := "http://manager.test.com/records/test.test.com/A"
-	if api != expected {
-		t.Errorf("Expecting '%v'; Got '%v'", expected, api)
+func TestDNSWebhookClient_UpdateRecord(t *testing.T) {
+	expectedError := types.BadRequestError("add record error", nil)
+	expectedErrorData, err := json.Marshal(expectedError)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	type fields struct {
+		clientAPI gohclient.API
+	}
+	type args struct {
+		name       string
+		recordType string
+		value      string
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+	}{
+		{
+			name:   "request success and 204 status code",
+			fields: fields{&MockHTTPHelperSuccess{Status: http.StatusNoContent}},
+			args:   args{name: "test", recordType: "A", value: "A"},
+		},
+		{
+			name:    "error check record - do not execute request",
+			fields:  fields{&MockHTTPHelperSuccess{}},
+			args:    args{recordType: "A", value: "A"},
+			wantErr: true,
+		},
+		{
+			name:    "request success and 400 status code",
+			fields:  fields{&MockHTTPHelperSuccess{Status: http.StatusBadRequest, Data: expectedErrorData}},
+			wantErr: true,
+		},
+		{
+			name:    "request error",
+			fields:  fields{&MockHTTPHelperError{err: &url.Error{Op: "request error add record"}}},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			l := &DNSWebhookClient{
+				ClientAPI: tt.fields.clientAPI,
+			}
+			if err := l.UpdateRecord(&types.DNSRecord{Name: tt.args.name, Type: tt.args.recordType, Value: tt.args.value}); (err != nil) != tt.wantErr {
+				t.Errorf("DNSWebhookClient.AddRecord() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
 	}
 }
 
-func TestGetAddress(t *testing.T) {
-	env := "BINDMAN_TEST_ADDRESS"
-	os.Setenv(env, "test.com")
-
-	addr, err := getAddress(env)
-	if addr == "" || err != nil {
-		t.Errorf("Expecting the getAddress func to succeed. Got err instead: '%v'", err)
+func TestDNSWebhookClient_AddRecord(t *testing.T) {
+	expectedError := types.BadRequestError("add record error", nil)
+	expectedErrorData, err := json.Marshal(expectedError)
+	if err != nil {
+		t.Fatal(err)
 	}
 
-	os.Setenv(env, "http://test.com")
-	addr, err = getAddress(env)
-	if err == nil {
-		t.Errorf("Expecting the getAddress func to return error. Got success instead: '%v'", addr)
+	type fields struct {
+		clientAPI gohclient.API
+	}
+	type args struct {
+		name       string
+		recordType string
+		value      string
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+	}{
+		{
+			name:   "request success and 204 status code",
+			fields: fields{&MockHTTPHelperSuccess{Status: http.StatusNoContent}},
+			args:   args{name: "test", recordType: "A", value: "A"},
+		},
+		{
+			name:    "error check record - do not execute request",
+			fields:  fields{&MockHTTPHelperSuccess{}},
+			args:    args{recordType: "A", value: "A"},
+			wantErr: true,
+		},
+		{
+			name:    "request success and 400 status code",
+			fields:  fields{&MockHTTPHelperSuccess{Status: http.StatusBadRequest, Data: expectedErrorData}},
+			args:    args{name: "test", recordType: "A", value: "A"},
+			wantErr: true,
+		},
+		{
+			name:    "request error",
+			fields:  fields{&MockHTTPHelperError{err: &url.Error{Op: "request error add record"}}},
+			args:    args{name: "test", recordType: "A", value: "A"},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			l := &DNSWebhookClient{
+				ClientAPI: tt.fields.clientAPI,
+			}
+			if err := l.AddRecord(tt.args.name, tt.args.recordType, tt.args.value); (err != nil) != tt.wantErr {
+				t.Errorf("DNSWebhookClient.AddRecord() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
 	}
 }
 
-type MockHTTPHelper struct {
-	PutData    []byte
-	PostData   []byte
-	GetData    []byte
-	DeleteData []byte
+type MockHTTPHelperSuccess struct {
+	Data   []byte
+	Status int
 }
 
-func (m *MockHTTPHelper) Put(url string, data []byte) (*http.Response, []byte, error) {
-	return &http.Response{}, m.PutData, nil
+func (m *MockHTTPHelperSuccess) Put(url string, data []byte) (*http.Response, []byte, error) {
+	return &http.Response{StatusCode: m.Status}, m.Data, nil
 }
 
-func (m *MockHTTPHelper) Post(url string, data []byte) (*http.Response, []byte, error) {
-	return &http.Response{}, m.PostData, nil
+func (m *MockHTTPHelperSuccess) Post(url string, data []byte) (*http.Response, []byte, error) {
+	return &http.Response{StatusCode: m.Status}, m.Data, nil
 }
 
-func (m *MockHTTPHelper) Get(url string) (*http.Response, []byte, error) {
-	return &http.Response{}, m.GetData, nil
+func (m *MockHTTPHelperSuccess) Get(url string) (*http.Response, []byte, error) {
+	return &http.Response{StatusCode: m.Status}, m.Data, nil
 }
-func (m *MockHTTPHelper) Delete(url string) (*http.Response, []byte, error) {
-	return &http.Response{}, m.DeleteData, nil
+func (m *MockHTTPHelperSuccess) Delete(url string) (*http.Response, []byte, error) {
+	return &http.Response{StatusCode: m.Status}, m.Data, nil
+}
+
+type MockHTTPHelperError struct {
+	err error
+}
+
+func (m MockHTTPHelperError) Put(url string, data []byte) (*http.Response, []byte, error) {
+	return nil, nil, m.err
+}
+
+func (m MockHTTPHelperError) Post(url string, data []byte) (*http.Response, []byte, error) {
+	return nil, nil, m.err
+}
+
+func (m MockHTTPHelperError) Get(url string) (*http.Response, []byte, error) {
+	return nil, nil, m.err
+}
+
+func (m MockHTTPHelperError) Delete(url string) (*http.Response, []byte, error) {
+	return nil, nil, m.err
 }
