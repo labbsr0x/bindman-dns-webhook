@@ -65,7 +65,8 @@
 							"port": "7071",
 							"path": [
 								"remove",
-								"testeX.com"
+								"testeX.com",
+								"A"
 							]
 						}
 					},

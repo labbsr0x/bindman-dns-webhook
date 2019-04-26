@@ -9,10 +9,10 @@ import (
 
 // write200Response writes the response to be sent
 func writeJSONResponse(payload interface{}, statusCode int, w http.ResponseWriter) {
+	// Headers must be set before call WriteHeader or Write. see https://golang.org/pkg/net/http/#ResponseWriter
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
-
 	if payload != nil {
-		w.Header().Set("Content-Type", "application/json")
 		types.PanicIfError(json.NewEncoder(w).Encode(payload))
 	}
 
